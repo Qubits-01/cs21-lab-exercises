@@ -22,8 +22,5 @@ int main()
     printf("*x: %d\n", *x);
     printf("address of x: %p\n", x);
 
-    char *a = "1";
-    printf("test: %d\n", a);
-
     return 0;
 }
