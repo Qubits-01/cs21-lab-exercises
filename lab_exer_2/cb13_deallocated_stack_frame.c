@@ -31,14 +31,14 @@ int main()
 
     for (int i = 0; i < k; i++)
     {
-        printf("1) p[%d]: %d\n", i, p[i]);
+        printf("p[%d]: %d\n", i, p[i]);
     }
 
     some_function();
 
     for (int i = 0; i < k; i++)
     {
-        printf("2) p[%d]: %d\n", i, p[i]);
+        printf("p[%d]: %d\n", i, p[i]);
     }
 
     return 0;
