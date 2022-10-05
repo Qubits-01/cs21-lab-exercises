@@ -1,9 +1,12 @@
 #include <stdio.h>
 
+int factorial(int);
+
 int main()
 {
     int n;
-    scanf("Input integer n: %d\n", &n);
+    printf("Input integer n: ");
+    scanf("%d", &n);
 
     printf("%d\n", factorial(n));
 
