@@ -6,15 +6,15 @@
 .eqv	float_b	$s1
 .eqv	float_c $s2		# Sum of float a and float b.
 .eqv	sign_c $s3		# Sign bit of the sum.
-.eqv	bm_manti 0x007FFFFF	# Bit mask for getting the mantissa.
-.eqv	bm_xtra_1 0x00800000	# Bit mask for including the implicit 1.
-.eqv	bm_expo 0x7F800000	# Bit mask for getting the exponent.
-.eqv	bm_bit_23 0xFF800000	# Bit mask for setting the correct value for bit 23.
 .eqv	expo_a $t1
 .eqv	expo_b $t2
 .eqv	manti_a $t3
 .eqv	manti_b $t4
 .eqv	manti_c $t5
+.eqv	bm_manti 0x007FFFFF	# Bit mask for getting the mantissa.
+.eqv	bm_xtra_1 0x00800000	# Bit mask for including the implicit 1.
+.eqv	bm_expo 0x7F800000	# Bit mask for getting the exponent.
+.eqv	bm_bit_23 0xFF800000	# Bit mask for setting the correct value for bit 23 (for leftmost 1).
 
 .macro	do_syscall(%n)
 	addi	$v0, $0, %n
@@ -23,16 +23,6 @@
 
 .macro	exit
 	do_syscall(10)
-.end_macro
-
-.macro	get_int_input(%var)
-	do_syscall(5)
-	move	%var, $v0
-.end_macro
-
-.macro	print_int(%var)
-	move	$a0, %var
-	do_syscall(1)
 .end_macro
 
 .macro	print_binary(%var)
@@ -72,7 +62,7 @@ main:
 	la	$t0, f_b
 	lw	float_b, 0($t0)
 	
-	# EXTRACT THE COMPONENTS.
+	# Step 1. EXTRACT THE COMPONENTS.
 	# Get the exponent.
 	li	$t0, bm_expo
 	and	expo_a, float_a, $t0
@@ -89,7 +79,7 @@ main:
 	or	manti_a, manti_a, $t0	# Include the implicit 1 to the mantissa of a.
 	or	manti_b, manti_b, $t0	# Include the implicit 1 to the mantissa of b.
 	
-	# ADJUST THE EXPONENTS.
+	# Step 2. ADJUST THE EXPONENTS.
 	beq	expo_a, expo_b, convert_mantissa
 	blt	expo_a, expo_b, lower_exponent_a
 	lower_exponent_b:
@@ -104,7 +94,7 @@ main:
 		add	expo_a, expo_a, $t0	# Adjust expo_a.
 		srlv	manti_a, manti_a, $t0	# Adjust manti_a.
 	
-	# CONVERT THE MANTISA TO 2C (IF NEEDED).
+	# Step 3. CONVERT THE MANTISA TO 2C (IF NEEDED).
 	convert_mantissa:
 		bltzal	float_a, a_to_2c	# float_a < 0 ? goto a_to_2c
 		bltzal	float_b, b_to_2c	# float_b < 0 ? goto b_to_2c
@@ -123,11 +113,11 @@ main:
 		
 		jr	$ra
 	
-	# ADD THE MANTISSAS.
+	# Step 4. ADD THE MANTISSAS.
 	add_mantissas:
 		add	manti_c, manti_a, manti_b	# manti_c = manti_a + manti_b
 		
-	# CONVERT BACK TO SIGNED MAGNITUDE (IF NEEDED).
+	# Step 5. CONVERT BACK TO SIGNED MAGNITUDE (IF NEEDED).
 	addi	sign_c, $0, 0				# Set sign_c to 0 (positive; default).
 	bgez	manti_c, adjust_bit_23_and_exponent
 	
@@ -136,7 +126,7 @@ main:
 	addi	sign_c, $0, 1				# Set sign_c to 1 (negative).
 	
 	
-	# ADJUST THE BIT 23 AND THE EXPONENT.
+	# Step 6. ADJUST THE BIT 23 AND THE EXPONENT.
 	adjust_bit_23_and_exponent:
 		addi	$t6, $t6, 1			# Constant value 1.
 		
@@ -171,7 +161,7 @@ main:
 	li	$t0, bm_manti
 	and	manti_c, manti_c, $t0		# Get only the first 23 bits of manti_c.
 	
-	# COMBINE THE COMPONENTS.
+	# Step 7. COMBINE THE COMPONENTS.
 	# Put the sign bit.
 	sll	$t0, sign_c, 31			# Relocate it to the leftmost part.
 	or	float_c, float_c, $t0		# Put it to float_c.
@@ -216,8 +206,8 @@ main:
 	exit()
 
 .data:
-f_a:	.float 3.75
-f_b:	.float -5.125
+f_a:	.float -5.75
+f_b:	.float -6.3125
 f_c:	.float 0	# Default value.
 manual_msg:	.asciiz "Manual algorithm"
 built_in_msg:	.asciiz "Built-in"
