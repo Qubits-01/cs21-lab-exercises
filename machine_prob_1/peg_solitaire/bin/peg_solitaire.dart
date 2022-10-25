@@ -14,20 +14,29 @@ List<List<String>> boardState = [];
 // [noOfPegs, tempFinalHoleRow, tempFinalHoleColumn].
 List<int> metadata = [0, -1, -1];
 // The pegMovesSolution[0] holds the size of this said list.
-List<List<int>> pegMovesSolution = [
-  [0]
-];
+List<List<int>> pegMovesSolution = [];
+int pegMovesSolutionSize = 0; // Holds the size of list pegMovesSolution.
 
-void main() {
-  const List<String> input = [
-    'xx...xx',
-    'xxo..xx',
-    '..o....',
-    '..oO...',
-    '.......',
-    'xx...xx',
-    'xx...xx',
-  ];
+List<String> main(List<String> params) {
+  // const List<String> input = [
+  //   'xx...xx',
+  //   'xxo..xx',
+  //   '..o....',
+  //   '..oO...',
+  //   '.......',
+  //   'xx...xx',
+  //   'xx...xx',
+  // ];
+
+  final List<String> input = params;
+
+  // Initialize the variables.
+  finalHoleRow = -1;
+  finalHoleColumn = -1;
+  boardState = [];
+  metadata = [0, -1, -1];
+  pegMovesSolution = [];
+  pegMovesSolutionSize = 0;
 
   // Fetch and decode input String.
   for (int r = 0; r < noOfRows; r++) {
@@ -36,7 +45,15 @@ void main() {
       tempRow.add(input[r][c]);
 
       // Update the noOfPegs.
-      if (tempRow[c] == pegHole) metadata[0] = metadata[0] + 1;
+      if ((tempRow[c] == pegHole) || (tempRow[c] == withPegFinalHole)) {
+        metadata[0] = metadata[0] + 1;
+
+        // Get the coordinate of the first peg.
+        if (metadata[1] < 0) {
+          metadata[1] = r;
+          metadata[2] = c;
+        }
+      }
 
       // Determine the coordinate of the destination/final hole.
       if (finalHoleRow < 0) {
@@ -45,7 +62,6 @@ void main() {
           tempRow[c] = 'o';
           finalHoleRow = r;
           finalHoleColumn = c;
-          metadata[0] = metadata[0] + 1;
 
           continue;
         }
@@ -62,6 +78,9 @@ void main() {
     boardState.add(tempRow); // Build the initial boardState;
   }
 
+  // When there is only one peg, identify its coordinate.
+
+  print('\n-------------------');
   print('boardState: $boardState');
   print('finalHole: $finalHoleRow, $finalHoleColumn');
   print('metadata: $metadata');
@@ -73,6 +92,7 @@ void main() {
   );
 
   print('pegMovesSolution: $pegMovesSolution');
+  print('pegMovesSolutionSize: $pegMovesSolutionSize');
   print('\n');
 
   List<String> output = [];
@@ -83,21 +103,25 @@ void main() {
   output.add(outputMsg);
 
   // Display the peg moves of the solution.
-  final int pegMovesSolutionSize = pegMovesSolution[0][0];
-  for (int i = pegMovesSolutionSize; i > 0; i--) {
-    final List<int> tempMove = pegMovesSolution[i];
-    final int r1 = tempMove[0];
-    final int c1 = tempMove[1];
-    final int r2 = tempMove[2];
-    final int c2 = tempMove[3];
+  if (isSolvable) {
+    for (int i = pegMovesSolutionSize - 1; i >= 0; i--) {
+      final List<int> tempMove = pegMovesSolution[i];
+      final int r1 = tempMove[0];
+      final int c1 = tempMove[1];
+      final int r2 = tempMove[2];
+      final int c2 = tempMove[3];
 
-    final String outputMove = '${r1 + 1},${c1 + 1}->${r2 + 1},${c2 + 1}';
-    print(outputMove);
+      final String outputMove = '${r1 + 1},${c1 + 1}->${r2 + 1},${c2 + 1}';
+      print(outputMove);
+      output.add(outputMove);
+    }
+    print('\n');
   }
-  print('\n');
 
   print(output);
   print('\n');
+
+  return output;
 }
 
 bool solveSolitairePeg({
@@ -114,7 +138,7 @@ bool solveSolitairePeg({
   final int noOfPegs = metadata[0];
   if (noOfPegs == 0) return false;
 
-  // Case 2: One peg is remaining. Check if its coordinate is equal
+  // Case 2: There is only 1 peg remaining. Check if its coordinate is equal
   // to the finalHole coordinate.
   final int tempFinalHoleRow = metadata[1];
   final int tempFinalHoleColumn = metadata[2];
@@ -144,7 +168,7 @@ bool solveSolitairePeg({
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
-          // Delete the jumped-over hole.
+          // Delete the peg in the jumped-over hole.
           newBoardState[r - 1][c] = emptyHole;
           // Put the peg on the new coordinate.
           newBoardState[r - 2][c] = pegHole;
@@ -162,7 +186,7 @@ bool solveSolitairePeg({
           if (isSolvable) {
             pegMovesSolution.add([r, c, r - 2, c]); // Add the move details.
             // Update the size.
-            pegMovesSolution[0][0] = pegMovesSolution[0][0] + 1;
+            pegMovesSolutionSize++;
 
             return true;
           }
@@ -179,7 +203,7 @@ bool solveSolitairePeg({
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
-          // Delete the jumped-over hole.
+          // Delete the peg in the jumped-over hole.
           newBoardState[r][c + 1] = emptyHole;
           // Put the peg on the new coordinate.
           newBoardState[r][c + 2] = pegHole;
@@ -197,7 +221,7 @@ bool solveSolitairePeg({
           if (isSolvable) {
             pegMovesSolution.add([r, c, r, c + 2]); // Add the move details.
             // Update the size.
-            pegMovesSolution[0][0] = pegMovesSolution[0][0] + 1;
+            pegMovesSolutionSize++;
 
             return true;
           }
@@ -232,7 +256,7 @@ bool solveSolitairePeg({
           if (isSolvable) {
             pegMovesSolution.add([r, c, r + 2, c]); // Add the move details.
             // Update the size.
-            pegMovesSolution[0][0] = pegMovesSolution[0][0] + 1;
+            pegMovesSolutionSize++;
 
             return true;
           }
@@ -267,7 +291,7 @@ bool solveSolitairePeg({
           if (isSolvable) {
             pegMovesSolution.add([r, c, r, c - 2]); // Add the move details.
             // Update the size.
-            pegMovesSolution[0][0] = pegMovesSolution[0][0] + 1;
+            pegMovesSolutionSize++;
 
             return true;
           }
