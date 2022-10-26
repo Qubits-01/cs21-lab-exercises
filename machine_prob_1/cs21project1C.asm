@@ -63,6 +63,16 @@
 	subiu	heapPtr, heapPtr, %size		# Update the heapPtr.
 .end_macro
 
+.macro load_elem_2D(%listAddr, %rowAddr, %colAddr, %addr)
+	# Compute for the index (as if it is in a 1D list).
+	# Formula: index = (row * 7) + col
+	mul	$a0, %rowAddr, 7		# Indices 0 to 6 per row.
+	add	$a0, $a0, %colAddr
+	
+	addu	$a0, %listAddr, $a0
+	lbu	%addr, 0($a0)		# Return the loaded elem (store it to register %addr).
+.end_macro
+
 
 # bool solve_solitaire_peg(List<List<String>> boardState, List<int> metadata);
 # Params:
@@ -278,6 +288,34 @@ main:
 	print_new_line()
 	
 	
+	# Access list elements using this notation: myList[r][c];
+	addi	$t0, $0, 0			# int r = 0;
+	lbu	$t1, 0($gp)			# size = 7;
+	
+	t_for1:
+		beq	$t0, $t1, t_end_for1	# r == size ? goto t_end_for1
+		
+		addi	$t2, $0, 0		# int c = 0;
+		t_for2:
+			beq	$t2, $t1, t_end_for2	# c == size ? goto t_end_for2
+			
+			load_elem_2D($s0, $t0, $t2, $t3)
+			print_char($t3)
+			
+			addi	$t2, $t2, 1		# c++;
+			j	t_for2
+		
+		t_end_for2:
+		
+		print_new_line()
+		
+		addi	$t0, $t0, 1		# r++;
+		j	t_for1
+	
+	t_end_for1:
+	
+	
+	
 	exit()
 
 
@@ -293,7 +331,10 @@ solve_solitaire_peg:
 	sw	$s6, 4($sp)
 	sw	$s7, 0($sp)
 
-
+	# BASE CASES.
+	# Case 1: There are no pegs to be moved.
+	
+	
 
 
 return_solve_solitaire_peg:
