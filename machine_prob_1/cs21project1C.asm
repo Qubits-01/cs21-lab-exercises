@@ -4,15 +4,12 @@
 
 
 .eqv	nRows 0x00000007		# Number of rows.
-.eqv	nCols 0x00000007		# Number of columns.
 .eqv	emptyHole 0x0000002E		# '.' : A hole with no peg.
 .eqv	pegHole 0x0000006F		# 'o' : A hole with a peg.
 .eqv	woPegFinalHole 0x00000045	# 'E' : Final hole w/o a peg.
 .eqv	wPegFinalHole 0x0000004F	# 'O' : Final hole w/ a peg.
 .eqv	heapPtr	$t9			# Will serve as the heap pointer and nothing else.
 .eqv	heapBasePtr 0x10040000		# Base address for the heap memory.
-.eqv	innerListTerminator 0x000000FE	# -2 : Inner list terminator for the 2D list.
-.eqv	outerListTerminator 0x000000FD	# -3 : Outer list terminator for the 2D list.
 .eqv	newLine 0x0000000a		# '/n' : New line.
 
 
@@ -25,18 +22,18 @@
 	do_syscall(10)
 .end_macro
 
-.macro print_int(%int_addr)
-	move	$a0, %int_addr		# Prepare the integer value.
+.macro print_int(%intAddr)
+	move	$a0, %intAddr		# Prepare the integer value.
 	do_syscall(1)			# Print integer syscall.
 .end_macro
 
-.macro print_hex(%hex_addr)
-	move	$a0, %hex_addr		# Prepare the hexadecimal value.
+.macro print_hex(%hexAddr)
+	move	$a0, %hexAddr		# Prepare the hexadecimal value.
 	do_syscall(34)			# Print hexadecimal syscall.
 .end_macro
 
-.macro print_char(%char_addr)
-	move	$a0, %char_addr		# Prepare the ASCII value.
+.macro print_char(%charAddr)
+	move	$a0, %charAddr		# Prepare the ASCII value.
 	do_syscall(11)			# Print ASCII character syscall.
 .end_macro
 
@@ -45,13 +42,13 @@
 	print_char($a0)		
 .end_macro
 
-.macro print_str(%data_label)
-	la	$a0, %data_label	# Address of the String.
+.macro print_str(%dataLabel)
+	la	$a0, %dataLabel		# Address of the String.
 	do_syscall(4)			# Print String syscall.
 .end_macro
 	
-.macro read_str(%data_label, %size %addr)
-	la	$a0, %data_label	# Loads String buffer address.
+.macro read_str(%dataLabel, %size %addr)
+	la	$a0, %dataLabel	# Loads String buffer address.
 	addi	$a1, $0, %size		# Read at most (%size - 1) characters.
 	move	%addr, $a0		# Returns the address of the String.
 	do_syscall(8)			# Read String syscall.
@@ -67,6 +64,19 @@
 .end_macro
 
 
+# bool solve_solitaire_peg(List<List<String>> boardState, List<int> metadata);
+# Params:
+#	boardState: $a0 = %boardStateAddr = '(List<List<String>>) Address of the 2D board state list.'
+#	metadata: $a1 = %metadataAddr	= '(List<int>) Address of the 1D metadata list.'
+# Return value:
+#	isSolvable: $v0 = (bool) 'Returns true if the peg solitaire is solvable, otherwise return false.'
+.macro fn_solve_solitaire_peg(%boardStateAddr, %metadataAddr)
+	move	$a0, %boardStateAddr
+	move	$a0, %metadataAddr
+	jal	solve_solitaire_peg
+.end_macro
+
+
 main:
 	# INITIALIZE THE GLOBAL VARIABLES.
 	addi	$t0, $0, nRows			# The same with nCols (i.e., nRows = nCols = 7).
@@ -79,8 +89,13 @@ main:
 	sb	$t0, 3($gp)			# const String woPegFinalHole = 'E';
 	addiu	$t0, $0, wPegFinalHole
 	sb	$t0, 4($gp)			# const String wPegFinalHole = 'O';
-	addi	$t0, $0, 0			# The number of peg moves of the solution.
-	sb	$t0, 5($gp)			# int nPegMoves = 0;
+	# The number of peg moves of the solution.
+	sb	$0, 5($gp)			# int nPegMoves = 0;
+	
+	addi	$t0, $0 -1
+	# Offset is 8 to maintain memory alignment (by 4).
+	sw	$t0, 8($gp)			# int finalHoleRow = -1;
+	sw	$t0, 12($gp)			# int finalHoleCol = -1;
 	
 	# INITIALIZE THE HEAP POINTER.
 	# $t9 will be the heapPtr in order to effectively
@@ -89,12 +104,11 @@ main:
 
 	# INITIALIZE THE BOARD STATE.
 	# This will be a 2-dimensional (2D) list.
-	# Each row will occupy 8 bytes (i.e., 7 bytes plus 1 byte for the innerListTerminator).
-	# The outer list will also have an outerListTerminator.
-	# Hence, ((8 * 7) + 1 = 57) bytes will be needed for the boardState (at minimum).
-	# Although, I will allocate 60 bytes so that it will still be divisible by 4.
-	# This is to preserve memory alignment. The last 3 bytes will be don't care values. 
-	malloc(60, $s0)				# List<List<String>> boardState = []; // $s0
+	# Each row will occupy 7 bytes.
+	# Hence, (7 * 7 = 49) bytes will be needed for the boardState (at minimum).
+	# Although, I will allocate 52 bytes so that it will still be divisible by 4.
+	# This is to preserve memory alignment (by 4). The last 3 bytes will be don't care values. 
+	malloc(52, $s0)				# List<List<String>> boardState = []; // $s0
 	
 	# INITIALIZE THE METADATA.
 	# index 0: noOfPegs = The number of pegs remaining in the board.
@@ -107,75 +121,197 @@ main:
 	sw	$t0, 4($s1)			# metadata[1] = -1;
 	sw	$t0, 8($s1)			# metadata[2] = -1;
 	
-	# FETCH AND DECODE THE RAW INPUTS.
-	addi	$t0, $0, 0			# int i = 0;
+	# INITIALIZE THE PEG MOVES SOLUTION LIST.
+	# This will be a 2-dimensional list.
+	# Each row is a list of 4 integer elements. Each integer will occupy 4 bytes (i.e., 1 word).
+	# Logically, there will be at max. of 7 rows in this list because the max. possible number of pegs
+	# in a given board state is only 8. That is, at max. it will take 7 valid peg moves to find the solution.
+	# Hence, (7 * (4 * 4) = 112) bytes will be needed for the pegMovesSolution list.
+	#
+	# The index representation of a row: [startRow, startCol, finalRow, finalCol]
+	# The startRow and startCol represents the coordinate of the starting position of the moved peg.
+	# The finalRow and finalCol represents the coordinate of the destination/final position of the moved peg.
+	# This data will be used for displaying the move/s of the peg solitaire solution (if it exist).
+	malloc(112, $s2)
+	
+	# FETCH AND DECODE THE RAW INPUTS. -----------------------------------------------------------------------------------
+	addi	$t0, $0, 0			# int r = 0;
 	lbu	$t1, 0($gp)			# nRows = 7;
 	move	$t5, $s0			# Memory pointer to the chars of boardState.
 	
+	# Loop through all the rows.
 	for0:
-		beq	$t0, $t1, end_for0	# i == nRows ? goto end_for0
+		beq	$t0, $t1, end_for0	# r == nRows ? goto end_for0
 		
 		# 7 bytes + new line + null terminator = 9 bytes
 		read_str(rowInputBuffer, 9, $t2)	# final String tempRow = input(); // $t2
-		addiu	$t3, $0, newLine		# const String newLine = '\n'; // $t3
+		addi	$t3, $0, 0			# int c = 0;
 		
+		# Loop through all the characters in the row.
 		for1:
-			lbu	$t4, 0($t2)		# final String currentChar = tempRow[j]; // $t4
-			beq	$t4, $t3, end_for1	# currentChar == newLine ? goto end_for1
+			beq	$t3, $t1, end_for1	# c == nCols ? got end_for1
+			lbu	$t4, 0($t2)		# final String currentChar = tempRow[c]; // $t4
 			
 			print_char($t4)
 			print_new_line()
 			
+			# UPDATE THE NUMBER OF PEGS.
+			lbu	$t6, 2($gp)		# pegHole = 'o';
+			beq	$t4, $t6, if0		# currentChar == pegHole ? goto if0
+			lbu	$t6, 4($gp)		# wPegFinalHole = 'O';
+			beq	$t4, $t6, if0		# currentChar == wPegFinalHole ? goto if0
+			j	end_if0
+			
+			if0:
+				lw	$t6, 0($s1)	# metadata[0]; // noOfPegs
+				addi	$t6, $t6, 1	# noOfPegs++;
+				sw	$t6, 0($s1)	# Store it right back.
+				
+				# GET THE COORDINATE OF THE FIRST PEG.
+				lw	$t6, 4($s1)	# metadata[1]; // tempFinalHoleRow
+				bltz	$t6, if1	# tempFinalHoleRow < 0 ? goto if1
+				j	end_if1
+				
+				if1:
+					sw	$t0, 4($s1)	# metadata[1] = r; // tempFinalHoleRow = r
+					sw	$t3, 8($s1)	# metadata[2] = c; // tempFinalHoleCol = c
+				
+				end_if1:
+				
+			end_if0:
+			
+			# DETERMINE THE COORDINATE OF THE DESTINATION/FINAL HOLE.
+			lw	$t6, 8($gp)		# finalHoleRow;
+			bltz	$t6, if2		# finalHoleRow < 0 ? goto if2
+			j	end_if2
+			
+			if2:
+				# DETERMINE IF IT IS A FINAL HOLE W/ A PEG.
+				lbu	$t6, 4($gp)		# wPegFinalHole = 'O';
+				beq	$t4, $t6, if3		# currentChar == 'O' ? goto if3
+				j	end_if3
+				
+				if3:
+					# Tranform 'O' to 'o'
+					lbu	$t4, 2($gp)	# currentChar = 'o';
+					sw	$t0, 8($gp)	# finalHoleRow = r;
+					sw	$t3, 12($gp)	# finalHoleCol = c;
+					j	end_if2		# continue;
+				
+				end_if3:
+				
+				# DETERMINE IF IT IS A FINAL HOLE W/O A PEG.
+				lbu	$t6, 3($gp)		# woPegFinalHole = 'E';
+				beq	$t4, $t6, if4		# currentChar == 'E' ? goto if4
+				j	end_if4
+				
+				if4:
+					# Tranform 'E' to '.'
+					lbu	$t4, 1($gp)	# emptyHole = '.';
+					sw	$t0, 8($gp)	# finalHoleRow = r;
+					sw	$t3, 12($gp)	# finalHoleCol = c;
+				
+				end_if4:
+			
+			end_if2:
+			
 			sb	$t4, 0($t5)		# Store the currentChar to the boardState.
-			addiu	$t5, $t5, 1		# Increment the boardState's memory pointer by 1 byte.
 			
 			addiu	$t2, $t2, 1		# Increment the rowInputBuffer's memory pointer by 1 byte.
+			addiu	$t5, $t5, 1		# Increment the boardState's memory pointer by 1 byte.
+			addi	$t3, $t3, 1		# c++;
 			j	for1
 		
 		end_for1:
-			# Add the innerListTerminator.
-			addi	$t2, $0, innerListTerminator
-			sb	$t2, 0($t5)
-			
-			addiu	$t5, $t5, 1		# Increment the memory pointer by 1 byte.
 		
-		addi	$t0, $t0, 1		# i++;
+		addi	$t0, $t0, 1		# r++;
 		j	for0
 	
 	end_for0:
-		# Add the outerListTerminator.
-		addi	$t0, $0, outerListTerminator
-		sb	$t0, 0($t5)
+		
+	# FETCH AND DECODE THE RAW INPUTS. ===================================================================================
 	
 	print_new_line()
 	
 	addi	$t0, $0, 0			# int i = 0;
-	addi	$t1, $0, outerListTerminator	# -3
+	addi	$t1, $0, 49			# int size = 49; // 7 * 7 = 49 chars
 	move	$t2, $s0			# Memory pointer to the chars of boardState.
 
 	print_new_line()
 	
 	for2:
+		beq	$t0, $t1, end_for2	# i == 49 ? goto end_for2
+		
 		lbu	$t3, 0($t2)		# currentChar
-		beq	$t3, $t1, end_for2	# currentChar == -3 ? goto end_for2
 		
 		# print_char($t3)
 		# print_new_line()
-		print_hex($t3)
+		print_char($t3)
 		print_new_line()
 		
 		addiu	$t2, $t2, 1		# currentChar++
+		addi	$t0, $t0, 1		# i++;
 		j	for2
 	
 	end_for2:
-
 	
+	print_new_line()
+
+	lw	$t0, 0($s1)
+	print_int($t0)				# noOfPegs;
+	print_new_line()
+	
+	lw	$t0, 4($s1)
+	print_int($t0)				# tempFinalHoleRow;
+	print_new_line()
+	
+	lw	$t0, 8($s1)
+	print_int($t0)				# tempFinalHoleCol;
+	print_new_line()
+	
+	lw	$t0, 8($gp)
+	print_int($t0)				# finalHoleRow;
+	print_new_line()
+	
+	lw	$t0, 12($gp)
+	print_int($t0)				# finalHoleCol;
+	print_new_line()
 	
 	
 	exit()
+
+
+solve_solitaire_peg:
+	# INITIALIZE STACK.
+	subiu	$sp, $sp, 32
+	sw	$s0, 28($sp)
+	sw	$s1, 24($sp)
+	sw	$s2, 20($sp)
+	sw	$s3, 16($sp)
+	sw	$s4, 12($sp)
+	sw	$s5, 8($sp)
+	sw	$s6, 4($sp)
+	sw	$s7, 0($sp)
+
+
+
+
+return_solve_solitaire_peg:
+	# DECOMPOSE STACK.
+	lw	$s0, 28($sp)
+	lw	$s1, 24($sp)
+	lw	$s2, 20($sp)
+	lw	$s3, 16($sp)
+	lw	$s4, 12($sp)
+	lw	$s5, 8($sp)
+	lw	$s6, 4($sp)
+	lw	$s7, 0($sp)
+	addiu	$sp, $sp, 32
+	jr	$ra
+
+
+
 	
-
-
 .data
 	# Allocate 9 bytes in each row becuse of the (new line + null terminator).
 	rowInputBuffer:	.space 9
