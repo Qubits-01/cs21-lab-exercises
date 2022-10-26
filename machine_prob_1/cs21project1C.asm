@@ -70,7 +70,17 @@
 	add	$a0, $a0, %colAddr
 	
 	addu	$a0, %listAddr, $a0
-	lbu	%addr, 0($a0)		# Return the loaded elem (store it to register %addr).
+	lbu	%addr, 0($a0)			# Return the loaded elem (store it to register %addr).
+.end_macro
+
+.macro store_elem_2D(%listAddr, %rowAddr, %colAddr, %elemAddr)
+	# Compute for the index (as if it is in a 1D list).
+	# Formula: index = (row * 7) + col
+	mul	$a0, %rowAddr, 7		# Indices 0 to 6 per row.
+	add	$a0, $a0, %colAddr
+	
+	addu	$a0, %listAddr, $a0
+	sb	%elemAddr, 0($a0)		# Store the elem in %elemAddr to the list %listAddr.
 .end_macro
 
 
@@ -286,6 +296,7 @@ main:
 	lw	$t0, 12($gp)
 	print_int($t0)				# finalHoleCol;
 	print_new_line()
+	print_new_line()
 	
 	
 	# Access list elements using this notation: myList[r][c];
@@ -314,6 +325,36 @@ main:
 	
 	t_end_for1:
 	
+	print_new_line()
+	
+	addi	$t4, $0, 69
+	addi	$t0, $0, 0			# int r = 0;
+	lbu	$t1, 0($gp)			# size = 7;
+	
+	t_for3:
+		beq	$t0, $t1, t_end_for3
+		
+		addi	$t2, $0, 0		# int c = 0;
+		t_for4:
+			beq	$t2, $t1, t_end_for4
+			
+			store_elem_2D($s0, $t0, $t2, $t4)
+			load_elem_2D($s0, $t0, $t2, $t3)
+			print_char($t3)
+			
+			addi	$t2, $t2, 1		# c++;
+			j	t_for4
+		
+		t_end_for4:
+		
+		print_new_line()
+		
+		addi	$t0, $t0, 1		# r++;
+		j	t_for3
+	
+	t_end_for3:
+	
+	print_new_line()
 	
 	
 	exit()
