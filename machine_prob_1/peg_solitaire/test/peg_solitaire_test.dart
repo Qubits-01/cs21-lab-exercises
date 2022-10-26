@@ -394,6 +394,72 @@ void main() {
     },
   );
 
+  test(
+    'Test case for 8 pegs. (2)',
+    () {
+      // Arrange.
+      const input = [
+        '.......',
+        'xx...xx',
+        'xx...xx',
+        'xx.o.xx',
+        'xxoooxx',
+        '..ooE..',
+        '...oo..',
+      ];
+
+      // Act.
+      final List<String> output = main_file.main(input);
+
+      // Assert.
+      expect(output[0], equals('NO'));
+    },
+  );
+
+  test(
+    'Test case for 8 pegs. (3)',
+    () {
+      // Arrange.
+      const input = [
+        '.......',
+        '.......',
+        '...o...',
+        '..ooo..',
+        '..ooE..',
+        '...oo..',
+        '.......',
+      ];
+
+      // Act.
+      final List<String> output = main_file.main(input);
+
+      // Assert.
+      expect(output[0], equals('NO'));
+    },
+  );
+
+  test(
+    'Test case for 8 pegs. (4)',
+    () {
+      // Arrange.
+      const input = [
+        '.......',
+        '.......',
+        '.......',
+        '...o...',
+        '..ooo..',
+        '..ooE..',
+        '...oo..',
+      ];
+
+      // Act.
+      final List<String> output = main_file.main(input);
+
+      // Assert.
+      expect(output[0], equals('NO'));
+    },
+  );
+
   test('Other sample test case 1 (w/ "E" value).', () {
     // Arrange.
     const input = [

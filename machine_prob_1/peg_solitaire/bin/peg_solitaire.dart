@@ -8,6 +8,7 @@ const String pegHole = 'o';
 const String invalidHole = 'x';
 const String withoutPegFinalHole = 'E';
 const String withPegFinalHole = 'O';
+int noOfCycles = 0;
 
 // Dynamic variables.
 List<List<String>> boardState = [];
@@ -37,11 +38,13 @@ List<String> main(List<String> params) {
   metadata = [0, -1, -1];
   pegMovesSolution = [];
   pegMovesSolutionSize = 0;
+  noOfCycles = 0;
 
   // Fetch and decode input String.
   for (int r = 0; r < noOfRows; r++) {
     List<String> tempRow = [];
     for (int c = 0; c < nowOfColumns; c++) {
+      noOfCycles++;
       tempRow.add(input[r][c]);
 
       // Update the noOfPegs.
@@ -93,6 +96,7 @@ List<String> main(List<String> params) {
 
   print('pegMovesSolution: $pegMovesSolution');
   print('pegMovesSolutionSize: $pegMovesSolutionSize');
+  print('noOfCycles: $noOfCycles');
   print('\n');
 
   List<String> output = [];
@@ -105,6 +109,7 @@ List<String> main(List<String> params) {
   // Display the peg moves of the solution.
   if (isSolvable) {
     for (int i = pegMovesSolutionSize - 1; i >= 0; i--) {
+      noOfCycles++;
       final List<int> tempMove = pegMovesSolution[i];
       final int r1 = tempMove[0];
       final int c1 = tempMove[1];
@@ -128,10 +133,10 @@ bool solveSolitairePeg({
   required List<List<String>> boardState,
   required List<int> metadata,
 }) {
-  print('boardState: $boardState');
-  print('finalHole: $finalHoleRow, $finalHoleColumn');
-  print('metadata: $metadata');
-  print('\n');
+  // print('boardState: $boardState');
+  // print('finalHole: $finalHoleRow, $finalHoleColumn');
+  // print('metadata: $metadata');
+  // print('\n');
 
   // Base case/s.
   // Case 1: There are no pegs to be moved.
@@ -151,6 +156,7 @@ bool solveSolitairePeg({
 
   for (int r = 0; r < noOfRows; r++) {
     for (int c = 0; c < nowOfColumns; c++) {
+      noOfCycles++;
       // Check if it is a peg.
       if (boardState[r][c] == pegHole) {
         // Check if there is an adjacent peg relative to the current peg.
@@ -166,7 +172,7 @@ bool solveSolitairePeg({
           List<int> newMetaData = [...metadata];
 
           // Update the boardState.
-          // Make the coordinate of the jumping peg empty.
+          // Make the coordinate of the jumping peg empty.wa4edt
           newBoardState[r][c] = emptyHole;
           // Delete the peg in the jumped-over hole.
           newBoardState[r - 1][c] = emptyHole;
