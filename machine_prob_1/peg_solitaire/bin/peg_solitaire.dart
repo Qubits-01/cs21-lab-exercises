@@ -8,15 +8,17 @@ const String pegHole = 'o';
 const String invalidHole = 'x';
 const String withoutPegFinalHole = 'E';
 const String withPegFinalHole = 'O';
-int noOfCycles = 0;
 
-// Dynamic variables.
-List<List<String>> boardState = [];
 // [noOfPegs, tempFinalHoleRow, tempFinalHoleColumn].
 List<int> metadata = [0, -1, -1];
-// The pegMovesSolution[0] holds the size of this said list.
+// List of moves for the peg solitaire solution.
 List<List<int>> pegMovesSolution = [];
 int pegMovesSolutionSize = 0; // Holds the size of list pegMovesSolution.
+
+int noOfCycles = 0;
+
+// Other variable.
+List<List<String>> boardState = [];
 
 List<String> main(List<String> params) {
   // const List<String> input = [
@@ -89,10 +91,7 @@ List<String> main(List<String> params) {
   print('metadata: $metadata');
   print('\n');
 
-  bool isSolvable = solveSolitairePeg(
-    boardState: boardState,
-    metadata: metadata,
-  );
+  bool isSolvable = solveSolitairePeg(boardState: boardState);
 
   print('pegMovesSolution: $pegMovesSolution');
   print('pegMovesSolutionSize: $pegMovesSolutionSize');
@@ -131,7 +130,6 @@ List<String> main(List<String> params) {
 
 bool solveSolitairePeg({
   required List<List<String>> boardState,
-  required List<int> metadata,
 }) {
   // print('boardState: $boardState');
   // print('finalHole: $finalHoleRow, $finalHoleColumn');
@@ -167,9 +165,8 @@ bool solveSolitairePeg({
         if ((r >= 2) &&
             (boardState[r - 1][c] == pegHole) &&
             (boardState[r - 2][c] == emptyHole)) {
-          // Perform deep copy on the list parameters.
+          // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          List<int> newMetaData = [...metadata];
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.wa4edt
@@ -179,15 +176,16 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r - 2][c] = pegHole;
 
-          newMetaData[0] = newMetaData[0] - 1; // Update the noOfPegs.
-          // Determine the tempFinalHole coordinate.
-          newMetaData[1] = r - 2;
-          newMetaData[2] = c;
+          // Save the value of the old metadata.
+          final int oldTempFinalHoleRow = metadata[1];
+          final int oldTempFinalHoleColumn = metadata[2];
 
-          bool isSolvable = solveSolitairePeg(
-            boardState: newBoardState,
-            metadata: newMetaData,
-          );
+          metadata[0] = metadata[0] - 1; // Update the noOfPegs.
+          // Determine the tempFinalHole coordinate.
+          metadata[1] = r - 2;
+          metadata[2] = c;
+
+          bool isSolvable = solveSolitairePeg(boardState: newBoardState);
 
           if (isSolvable) {
             pegMovesSolution.add([r, c, r - 2, c]); // Add the move details.
@@ -195,6 +193,11 @@ bool solveSolitairePeg({
             pegMovesSolutionSize++;
 
             return true;
+          } else {
+            // Revert back to the previous value of the metadata.
+            metadata[0] = metadata[0] + 1;
+            metadata[1] = oldTempFinalHoleRow;
+            metadata[2] = oldTempFinalHoleColumn;
           }
         }
 
@@ -202,9 +205,8 @@ bool solveSolitairePeg({
         if ((c <= 4) &&
             (boardState[r][c + 1] == pegHole) &&
             (boardState[r][c + 2] == emptyHole)) {
-          // Perform deep copy on the list parameters.
+          // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          List<int> newMetaData = [...metadata];
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -214,15 +216,16 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r][c + 2] = pegHole;
 
-          newMetaData[0] = newMetaData[0] - 1; // Update the noOfPegs.
-          // Determine the tempFinalHole coordinate.
-          newMetaData[1] = r;
-          newMetaData[2] = c + 2;
+          // Save the value of the old metadata.
+          final int oldTempFinalHoleRow = metadata[1];
+          final int oldTempFinalHoleColumn = metadata[2];
 
-          bool isSolvable = solveSolitairePeg(
-            boardState: newBoardState,
-            metadata: newMetaData,
-          );
+          metadata[0] = metadata[0] - 1; // Update the noOfPegs.
+          // Determine the tempFinalHole coordinate.
+          metadata[1] = r;
+          metadata[2] = c + 2;
+
+          bool isSolvable = solveSolitairePeg(boardState: newBoardState);
 
           if (isSolvable) {
             pegMovesSolution.add([r, c, r, c + 2]); // Add the move details.
@@ -230,6 +233,11 @@ bool solveSolitairePeg({
             pegMovesSolutionSize++;
 
             return true;
+          } else {
+            // Revert back to the previous value of the metadata.
+            metadata[0] = metadata[0] + 1;
+            metadata[1] = oldTempFinalHoleRow;
+            metadata[2] = oldTempFinalHoleColumn;
           }
         }
 
@@ -237,9 +245,8 @@ bool solveSolitairePeg({
         if ((r <= 4) &&
             (boardState[r + 1][c] == pegHole) &&
             (boardState[r + 2][c] == emptyHole)) {
-          // Perform deep copy on the list parameters.
+          // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          List<int> newMetaData = [...metadata];
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -249,15 +256,16 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r + 2][c] = pegHole;
 
-          newMetaData[0] = newMetaData[0] - 1; // Update the noOfPegs.
-          // Determine the tempFinalHole coordinate.
-          newMetaData[1] = r + 2;
-          newMetaData[2] = c;
+          // Save the value of the old metadata.
+          final int oldTempFinalHoleRow = metadata[1];
+          final int oldTempFinalHoleColumn = metadata[2];
 
-          bool isSolvable = solveSolitairePeg(
-            boardState: newBoardState,
-            metadata: newMetaData,
-          );
+          metadata[0] = metadata[0] - 1; // Update the noOfPegs.
+          // Determine the tempFinalHole coordinate.
+          metadata[1] = r + 2;
+          metadata[2] = c;
+
+          bool isSolvable = solveSolitairePeg(boardState: newBoardState);
 
           if (isSolvable) {
             pegMovesSolution.add([r, c, r + 2, c]); // Add the move details.
@@ -265,6 +273,11 @@ bool solveSolitairePeg({
             pegMovesSolutionSize++;
 
             return true;
+          } else {
+            // Revert back to the previous value of the metadata.
+            metadata[0] = metadata[0] + 1;
+            metadata[1] = oldTempFinalHoleRow;
+            metadata[2] = oldTempFinalHoleColumn;
           }
         }
 
@@ -272,9 +285,8 @@ bool solveSolitairePeg({
         if ((c >= 2) &&
             (boardState[r][c - 1] == pegHole) &&
             (boardState[r][c - 2] == emptyHole)) {
-          // Perform deep copy on the list parameters.
+          // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          List<int> newMetaData = [...metadata];
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -284,15 +296,16 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r][c - 2] = pegHole;
 
-          newMetaData[0] = newMetaData[0] - 1; // Update the noOfPegs.
-          // Determine the tempFinalHole coordinate.
-          newMetaData[1] = r;
-          newMetaData[2] = c - 2;
+          // Save the value of the old metadata.
+          final int oldTempFinalHoleRow = metadata[1];
+          final int oldTempFinalHoleColumn = metadata[2];
 
-          bool isSolvable = solveSolitairePeg(
-            boardState: newBoardState,
-            metadata: newMetaData,
-          );
+          metadata[0] = metadata[0] - 1; // Update the noOfPegs.
+          // Determine the tempFinalHole coordinate.
+          metadata[1] = r;
+          metadata[2] = c - 2;
+
+          bool isSolvable = solveSolitairePeg(boardState: newBoardState);
 
           if (isSolvable) {
             pegMovesSolution.add([r, c, r, c - 2]); // Add the move details.
@@ -300,6 +313,11 @@ bool solveSolitairePeg({
             pegMovesSolutionSize++;
 
             return true;
+          } else {
+            // Revert back to the previous value of the metadata.
+            metadata[0] = metadata[0] + 1;
+            metadata[1] = oldTempFinalHoleRow;
+            metadata[2] = oldTempFinalHoleColumn;
           }
         }
       }
