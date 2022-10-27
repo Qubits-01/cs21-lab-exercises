@@ -169,7 +169,7 @@ bool solveSolitairePeg({
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
 
           // Update the boardState.
-          // Make the coordinate of the jumping peg empty.wa4edt
+          // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
           // Delete the peg in the jumped-over hole.
           newBoardState[r - 1][c] = emptyHole;
