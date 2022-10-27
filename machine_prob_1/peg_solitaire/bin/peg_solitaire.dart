@@ -176,10 +176,6 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r - 2][c] = pegHole;
 
-          // Save the value of the old metadata.
-          final int oldTempFinalHoleRow = metadata[1];
-          final int oldTempFinalHoleColumn = metadata[2];
-
           metadata[0] = metadata[0] - 1; // Update the noOfPegs.
           // Determine the tempFinalHole coordinate.
           metadata[1] = r - 2;
@@ -196,8 +192,8 @@ bool solveSolitairePeg({
           } else {
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
-            metadata[1] = oldTempFinalHoleRow;
-            metadata[2] = oldTempFinalHoleColumn;
+            metadata[1] = tempFinalHoleRow;
+            metadata[2] = tempFinalHoleColumn;
           }
         }
 
@@ -216,10 +212,6 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r][c + 2] = pegHole;
 
-          // Save the value of the old metadata.
-          final int oldTempFinalHoleRow = metadata[1];
-          final int oldTempFinalHoleColumn = metadata[2];
-
           metadata[0] = metadata[0] - 1; // Update the noOfPegs.
           // Determine the tempFinalHole coordinate.
           metadata[1] = r;
@@ -236,8 +228,8 @@ bool solveSolitairePeg({
           } else {
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
-            metadata[1] = oldTempFinalHoleRow;
-            metadata[2] = oldTempFinalHoleColumn;
+            metadata[1] = tempFinalHoleRow;
+            metadata[2] = tempFinalHoleColumn;
           }
         }
 
@@ -256,10 +248,6 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r + 2][c] = pegHole;
 
-          // Save the value of the old metadata.
-          final int oldTempFinalHoleRow = metadata[1];
-          final int oldTempFinalHoleColumn = metadata[2];
-
           metadata[0] = metadata[0] - 1; // Update the noOfPegs.
           // Determine the tempFinalHole coordinate.
           metadata[1] = r + 2;
@@ -276,8 +264,8 @@ bool solveSolitairePeg({
           } else {
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
-            metadata[1] = oldTempFinalHoleRow;
-            metadata[2] = oldTempFinalHoleColumn;
+            metadata[1] = tempFinalHoleRow;
+            metadata[2] = tempFinalHoleColumn;
           }
         }
 
@@ -296,10 +284,6 @@ bool solveSolitairePeg({
           // Put the peg on the new coordinate.
           newBoardState[r][c - 2] = pegHole;
 
-          // Save the value of the old metadata.
-          final int oldTempFinalHoleRow = metadata[1];
-          final int oldTempFinalHoleColumn = metadata[2];
-
           metadata[0] = metadata[0] - 1; // Update the noOfPegs.
           // Determine the tempFinalHole coordinate.
           metadata[1] = r;
@@ -316,8 +300,8 @@ bool solveSolitairePeg({
           } else {
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
-            metadata[1] = oldTempFinalHoleRow;
-            metadata[2] = oldTempFinalHoleColumn;
+            metadata[1] = tempFinalHoleRow;
+            metadata[2] = tempFinalHoleColumn;
           }
         }
       }

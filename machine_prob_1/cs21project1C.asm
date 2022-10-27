@@ -105,14 +105,14 @@
 .end_macro
 
 
-# bool solve_solitaire_peg(List<List<String>> boardState, List<int> metadata);
+# bool solve_peg_solitaire(List<List<String>> boardState);
 # Param:
 #	boardState: $a0 = %boardStateAddr = '(List<List<String>>) Address of the 2D board state list.'
 # Return value:
 #	isSolvable: $v0 = (bool) 'Returns true if the peg solitaire is solvable, otherwise return false.'
-.macro fn_solve_solitaire_peg(%boardStateAddr)
+.macro fn_solve_peg_solitaire(%boardStateAddr)
 	move	$a0, %boardStateAddr
-	jal	solve_solitaire_peg
+	jal	solve_peg_solitaire
 .end_macro
 
 
@@ -385,21 +385,23 @@ main:
 	
 	print_new_line()
 	
+	fn_solve_peg_solitaire($s0)
+	
+	print_int($v0)
+	print_new_line()
+	
 	
 	exit()
 
 
-solve_solitaire_peg:
+solve_peg_solitaire:
 	# INITIALIZE STACK.
-	subiu	$sp, $sp, 32
-	sw	$s0, 28($sp)
-	sw	$s1, 24($sp)
-	sw	$s2, 20($sp)
-	sw	$s3, 16($sp)
-	sw	$s4, 12($sp)
-	sw	$s5, 8($sp)
-	sw	$s6, 4($sp)
-	sw	$s7, 0($sp)
+	subiu	$sp, $sp, 20
+	sw	$s0, 16($sp)
+	sw	$s1, 12($sp)
+	sw	$s2, 8($sp)
+	sw	$s3, 4($sp)
+	sw	$s4, 0($sp)
 	
 	# Save the address of this stack's boardState (for future reference).
 	move	$s0, $a0
@@ -409,118 +411,175 @@ solve_solitaire_peg:
 
 	# BASE CASES.
 	# CASE 1: There are no pegs to be moved.
-	lw	$t1, 0($t0)			# int noOfPegs = metadata[0];
-	beqz	$t1, if5			# noOfPegs == 0 ? goto if5
+	lw	$t2, 0($t0)			# int noOfPegs = metadata[0];
+	beqz	$t2, if5			# noOfPegs == 0 ? goto if5
 	j	end_if5
 	
 	if5:
 		addi	$v0, $0, 0		# return 0; // false
-		j	return_solve_solitaire_peg
+		j	return_solve_peg_solitaire
 	
 	end_if5:
 	
 	# CASE 2: There is only 1 peg remaining. Check if its coordinate is equal
 	# to the finalHole coordinate.
-	addi	$t2, $0, 1			# constant value 1.
-	beq	$t1, $t2, if_and6_1		# noOfPegs == 1 ? goto if_and6_1
+	# Save the value of tempFinalHoleRow and tempFinalHoleCol (will be used later).
+	lw	$s1, 4($t0)			# final int tempFinalHoleRow = metadata[1];
+	lw	$s2, 8($t0)			# final int tempFinalHoleCol = metadata[2];
+	
+	addi	$t3, $0, 1			# constant value 1.
+	beq	$t2, $t3, if_and6_1		# noOfPegs == 1 ? goto if_and6_1
 	j	end_if6
 	
 	if_and6_1:
-	lw	$s1, 4($t0)			# final int tempFinalHoleRow = metadata[1];
-	lw	$t1, 8($gp)			# final int finalHoleRow; // Global variable.
-	beq	$s1, $t1, if_and6_2		# tempFinalHoleRow == finalHoleRow ? goto if_and6_2
+	lw	$t2, 8($gp)			# final int finalHoleRow; // Global variable.
+	beq	$s1, $t2, if_and6_2		# tempFinalHoleRow == finalHoleRow ? goto if_and6_2
 	j	end_if6
 	
 	if_and6_2:
-	lw	$s2, 8($t0)			# final int tempFinalHoleCol = metadata[2];
-	lw	$t1, 12($gp)			# final int finalHoleCol; // Global variable.
-	beq	$s2, $t1, if6			# tempFinalHoleCol =- finalHoleCole ? goto if6
+	lw	$t2, 12($gp)			# final int finalHoleCol; // Global variable.
+	beq	$s2, $t2, if6			# tempFinalHoleCol =- finalHoleCole ? goto if6
 	j	end_if6
 	
 	if6:
 		addi	$v0, $0, 1		# return 1; // true
-		j	return_solve_solitaire_peg
+		j	return_solve_peg_solitaire
 	
 	end_if6:
 	
 	# TRAVERSE EACH ELEMENTS OF THE BOARD.
-	addi	$t1, $0, 0			# int r = 0;
-	lbu	$t2, 0($gp)			# const int noOfRows = 7; noOfRows = noOfCols = 7
+	addi	$s3, $0, 0			# int r = 0;
+	lbu	$t1, 0($gp)			# const int noOfRows = 7; noOfRows = noOfCols = 7
 	
 	for2:
-		beq	$t1, $t2, end_for2		# r == 7 ? goto end_for2
-		addi	$t3, $0, 0			# int c = 0;
+		beq	$s3, $t1, end_for2		# r == 7 ? goto end_for2
+		addi	$s4, $0, 0			# int c = 0;
 		for3:
-			beq	$t3, $t2, end_for3	# c == 7 ? goto end_for3
+			beq	$s4, $t1, end_for3	# c == 7 ? goto end_for3
+			
+			print_int($s3)
+			print_int($s4)
+			# print_hex($t9)
 			
 			# CHECK IF THE CURRENT ELEMENT IS A PEG.
-			load_elem_2D($s0, $t1, $t3, $t4)	# String boardState[r][c]; // $t4
-			lbu	$t5, 2($gp)			# const String pegHole = 'o';
+			load_elem_2D($s0, $s3, $s4, $t2)	# String boardState[r][c]; // $t2
+			lbu	$t3, 2($gp)			# const String pegHole = 'o';
 			
-			beq	$t4, $t5, if7			# boardState[r][c] == 'o' ? goto if7
+			print_char($t2)
+			print_new_line()
+			
+			beq	$t2, $t3, if7			# boardState[r][c] == 'o' ? goto if7
 			j	end_if7
 			
 			if7:
 				# Check if there is an adjacent peg relative to the current peg.
         			# While doing this, check also if the hole destination is available.
         			# The order of peg-checking: North, East, South, and then West.
+        			
+        			print_char($t2)
+        			print_new_line()
 			
 				# CHECK NORTH.
-				addi	$t4, $0, 1			# Constant value 1.
-				bgt	$t1, $t4, if_and8_1		# r > 1 ? goto if_and8_1
+				addi	$t2, $0, 1			# Constant value 1.
+				bgt	$s3, $t2, if_and8_1		# r > 1 ? goto if_and8_1
 				j	end_if8
 				
 				if_and8_1:
-				subi	$t4, $t1, 1			# r - 1
-				load_elem_2D($s0, $t4, $t3, $t5)	# boardState[r - 1][c]; // $t5
-				lbu	$t6, 2($gp)			# pegHole = 'o';
-				beq	$t5, $t6, if_and8_2		# boardState[r - 1][c] == 'o' ? goto if_and8_2
+				subi	$t2, $s3, 1			# r - 1
+				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 1][c]; // $t3
+				lbu	$t4, 2($gp)			# pegHole = 'o';
+				beq	$t3, $t4, if_and8_2		# boardState[r - 1][c] == 'o' ? goto if_and8_2
 				j	end_if8
 				
 				if_and8_2:
-				subi	$t4, $t1, 2			# r - 2
-				load_elem_2D($s0, $t4, $t3, $t5)	# boardState[r - 2][c]; // $t5
-				lbu	$t6, 1($gp)			# emptyHole = '.';
-				beq	$t5, $t6, if8			# boardState[r - 2][c] == '.' ? goto if8
+				subi	$t2, $s3, 2			# r - 2
+				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 2][c]; // $t3
+				lbu	$t4, 1($gp)			# emptyHole = '.';
+				beq	$t3, $t4, if8			# boardState[r - 2][c] == '.' ? goto if8
 				j	end_if8
 				
 				
 				if8:
+					print_char($s3)
+					print_char($s4)
+        				print_new_line()
+				
 					# Perform deep copy on the boardState 2D list to produce
 					# newBoardState 2D list.
-					malloc(52, $t4)				# List<List<String>> newBoardState; // $t4
-					copy_list_2D($s0, $t4, 49)		# newBoardState = copyList2D(boardState); // $t4
+					malloc(52, $t2)				# List<List<String>> newBoardState; // $t2
+					copy_list_2D($s0, $t2, 49)		# newBoardState = copyList2D(boardState); // $t2
 					
 					# UPDATE THE BOARD STATE.
 					# Make the coordinate of the jumping peg empty.
-					lbu	$t5, 1($gp)			# emptyHole = '.';
-					store_elem_2D($t4, $t1, $t3, $t5)	# newBoardState[r][c] = '.';
+					lbu	$t3, 1($gp)			# emptyHole = '.';
+					store_elem_2D($t2, $s3, $s4, $t3)	# newBoardState[r][c] = '.';
 					
 					# Delete the peg in the jumped-over hole.
-					subi	$t6, $t1, 1			# r - 1
-					store_elem_2D($t4, $t6, $t3, $t5)	# newBoardState[r - 1][c] = '.';
+					subi	$t4, $s3, 1			# r - 1
+					store_elem_2D($t2, $t4, $s4, $t3)	# newBoardState[r - 1][c] = '.';
 					
 					# Put the peg on the new coordinate.
-					subi	$t6, $t1, 2			# r - 2
-					lbu	$t5, 2($gp)			# pegHole = 'o';
-					store_elem_2D($t4, $t6, $t3, $t5)	# newBoardState[r - 2][c] = 'o';
+					subi	$t4, $s3, 2			# r - 2
+					lbu	$t3, 2($gp)			# pegHole = 'o';
+					store_elem_2D($t2, $t4, $s4, $t3)	# newBoardState[r - 2][c] = 'o';
 					
 					# UPDATE THE METATADA (noOfPegs, tempFinalHoleRow, tempFinalHoleCol).
 					# Decrement noOfPegs by 1.
 					# metadata[0] = metadata[0] - 1;
-					lw	$t5, 0($t0)			# noOfPegs = metadata[0];
-					subi	$t5, $t5, 1			# noOfPegs--;
-					sw	$t5, 0($t0)
+					lw	$t3, 0($t0)			# noOfPegs = metadata[0];
+					subi	$t3, $t3, 1			# noOfPegs--;
+					sw	$t3, 0($t0)
 					
 					# Determine the new tempFinalHole coordinate.
-					subi	$t5, $t1, 2			# r - 2;
-					sw	$t5, 4($t0)			# metadata[1] = r - 2;
-					sw	$t3, 8($t0)			# metadata[2] = c;
+					subi	$t3, $s3, 2			# r - 2;
+					sw	$t3, 4($t0)			# metadata[1] = r - 2;
+					sw	$s4, 8($t0)			# metadata[2] = c;
 					
-					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE (AND IMPLICITY, THE NEW METADATA).
-					fn_solve_solitaire_peg($t4)
+					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE
+					# (AND IMPLICITY, THE NEW METADATA).
+					fn_solve_peg_solitaire($t2)
 					
-				
+					# 1 is true, 0 is false.
+					bgtz  	$v0, if9			# isSolvable == true ? goto if9
+					j	else9
+					
+					if9:
+						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
+						lbu	$t2, 5($gp)		# int nPegMoves;
+						sll	$t3, $t2, 4		# nPegMoves = nPegMoves * 16;
+						lw	$t4, 20($gp)		# List<List<int>> pegMovesSolution;
+						
+						# Right-adjacent position pointer to the most recent
+						# element in the pegMovesSolution list.
+						addu	$t3, $t3, $t4
+						
+						sw	$s3, 0($t3)		# r (startRow)
+						sw	$s4, 4($t3)		# c (startCol)
+						subi	$t4, $s3, 2		# r - 2
+						sw	$t4, 8($t3)		# r - 2 (finalRow)
+						sw	$s4, 12($t3)		# c (finalCol)
+						
+						# Update the pegMovesSolution list size.
+						addi	$t2, $t2, 1		# nPegMoves++;
+						sb	$t2, 5($gp)
+						
+						addi	$v0, $0, 1		# return 1; // true
+						j	return_prep_solve_peg_solitaire
+						
+						j	end_if9
+						
+					else9:
+						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
+						# metadata[0] = metadata[0] + 1;
+						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
+						addi	$t2, $t2, 1		# noOfPegs++;
+						sw	$t2, 0($t0)
+						
+						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
+						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
+					
+					end_if9:
+					
 				end_if8:
 				
 				
@@ -545,42 +604,36 @@ solve_solitaire_peg:
 				
 			end_if7:
 			
-			addi	$t3, $t3, 1		# c++;
+			addi	$s4, $s4, 1		# c++;
 			j	for3
 			
 		end_for3:
 		
-		addi	$t1, $t1, 1		# r++;
+		addi	$s3, $s3, 1		# r++;
 		j	for2
 		
 	end_for2:
 	
 	
+	# RETURN FALSE IF NO SOLUTION WAS FOUND FOR THIS BOARD STATE.
+	addi	$v0, $0, 0			# return 0;
 	
-	
-	
-
-
-return_solve_solitaire_peg:
+return_prep_solve_peg_solitaire:
 	# Deallocate the memory that the boardState 2D list
 	# used in this function stack.
 	free(52)
 
+return_solve_peg_solitaire:
 	# DECOMPOSE STACK.
-	lw	$s0, 28($sp)
-	lw	$s1, 24($sp)
-	lw	$s2, 20($sp)
-	lw	$s3, 16($sp)
-	lw	$s4, 12($sp)
-	lw	$s5, 8($sp)
-	lw	$s6, 4($sp)
-	lw	$s7, 0($sp)
-	addiu	$sp, $sp, 32
+	lw	$s0, 16($sp)
+	lw	$s1, 12($sp)
+	lw	$s2, 8($sp)
+	lw	$s3, 4($sp)
+	lw	$s4, 0($sp)
+	addiu	$sp, $sp, 20
 	jr	$ra
 
 
-
-	
 .data
 	# Allocate 9 bytes in each row becuse of the (new line + null terminator).
 	rowInputBuffer:	.space 9
