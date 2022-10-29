@@ -16,6 +16,7 @@ List<List<int>> pegMovesSolution = [];
 int pegMovesSolutionSize = 0; // Holds the size of list pegMovesSolution.
 
 int noOfCycles = 0;
+int heapMemory = 0;
 
 // Other variable.
 List<List<String>> boardState = [];
@@ -96,6 +97,7 @@ List<String> main(List<String> params) {
   print('pegMovesSolution: $pegMovesSolution');
   print('pegMovesSolutionSize: $pegMovesSolutionSize');
   print('noOfCycles: $noOfCycles');
+  print('heapMemory: $heapMemory');
   print('\n');
 
   List<String> output = [];
@@ -135,6 +137,9 @@ bool solveSolitairePeg({
   // print('finalHole: $finalHoleRow, $finalHoleColumn');
   // print('metadata: $metadata');
   // print('\n');
+  // print('------------------------');
+  // print('heapMemory: $heapMemory');
+  // print('------------------------');
 
   // Base case/s.
   // Case 1: There are no pegs to be moved.
@@ -146,10 +151,13 @@ bool solveSolitairePeg({
   final int tempFinalHoleRow = metadata[1];
   final int tempFinalHoleColumn = metadata[2];
 
-  if ((noOfPegs == 1) &&
-      (tempFinalHoleRow == finalHoleRow) &&
-      (tempFinalHoleColumn == finalHoleColumn)) {
-    return true;
+  if (noOfPegs == 1) {
+    if ((tempFinalHoleRow == finalHoleRow) &&
+        (tempFinalHoleColumn == finalHoleColumn)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   for (int r = 0; r < noOfRows; r++) {
@@ -167,6 +175,7 @@ bool solveSolitairePeg({
             (boardState[r - 2][c] == emptyHole)) {
           // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
+          heapMemory += 52;
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -187,6 +196,7 @@ bool solveSolitairePeg({
             pegMovesSolution.add([r, c, r - 2, c]); // Add the move details.
             // Update the size.
             pegMovesSolutionSize++;
+            heapMemory -= 52;
 
             return true;
           } else {
@@ -194,6 +204,7 @@ bool solveSolitairePeg({
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
+            heapMemory -= 52;
           }
         }
 
@@ -203,6 +214,7 @@ bool solveSolitairePeg({
             (boardState[r][c + 2] == emptyHole)) {
           // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
+          heapMemory += 52;
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -223,6 +235,7 @@ bool solveSolitairePeg({
             pegMovesSolution.add([r, c, r, c + 2]); // Add the move details.
             // Update the size.
             pegMovesSolutionSize++;
+            heapMemory -= 52;
 
             return true;
           } else {
@@ -230,6 +243,7 @@ bool solveSolitairePeg({
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
+            heapMemory -= 52;
           }
         }
 
@@ -239,6 +253,7 @@ bool solveSolitairePeg({
             (boardState[r + 2][c] == emptyHole)) {
           // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
+          heapMemory += 52;
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -259,6 +274,7 @@ bool solveSolitairePeg({
             pegMovesSolution.add([r, c, r + 2, c]); // Add the move details.
             // Update the size.
             pegMovesSolutionSize++;
+            heapMemory -= 52;
 
             return true;
           } else {
@@ -266,6 +282,7 @@ bool solveSolitairePeg({
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
+            heapMemory -= 52;
           }
         }
 
@@ -275,6 +292,7 @@ bool solveSolitairePeg({
             (boardState[r][c - 2] == emptyHole)) {
           // Perform deep copy on the newBoardState 2D list.
           List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
+          heapMemory += 52;
 
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
@@ -295,6 +313,7 @@ bool solveSolitairePeg({
             pegMovesSolution.add([r, c, r, c - 2]); // Add the move details.
             // Update the size.
             pegMovesSolutionSize++;
+            heapMemory -= 52;
 
             return true;
           } else {
@@ -302,6 +321,7 @@ bool solveSolitairePeg({
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
+            heapMemory -= 52;
           }
         }
       }
