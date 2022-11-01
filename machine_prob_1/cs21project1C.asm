@@ -116,6 +116,7 @@
 .end_macro
 
 
+.text
 main:
 	# INITIALIZE THE GLOBAL VARIABLES.
 	addi	$t0, $0, nRows			# The same with nCols (i.e., nRows = nCols = 7).
@@ -396,7 +397,8 @@ main:
 
 solve_peg_solitaire:
 	# INITIALIZE STACK.
-	subiu	$sp, $sp, 20
+	subiu	$sp, $sp, 24
+	sw	$ra, 20($sp)
 	sw	$s0, 16($sp)
 	sw	$s1, 12($sp)
 	sw	$s2, 8($sp)
@@ -424,26 +426,30 @@ solve_peg_solitaire:
 	# CASE 2: There is only 1 peg remaining. Check if its coordinate is equal
 	# to the finalHole coordinate.
 	# Save the value of tempFinalHoleRow and tempFinalHoleCol (will be used later).
-	lw	$s1, 4($t0)			# final int tempFinalHoleRow = metadata[1];
-	lw	$s2, 8($t0)			# final int tempFinalHoleCol = metadata[2];
+	lw	$s1, 4($t0)					# final int tempFinalHoleRow = metadata[1];
+	lw	$s2, 8($t0)					# final int tempFinalHoleCol = metadata[2];
 	
-	addi	$t3, $0, 1			# constant value 1.
-	beq	$t2, $t3, if_and6_1		# noOfPegs == 1 ? goto if_and6_1
-	j	end_if6
-	
-	if_and6_1:
-	lw	$t2, 8($gp)			# final int finalHoleRow; // Global variable.
-	beq	$s1, $t2, if_and6_2		# tempFinalHoleRow == finalHoleRow ? goto if_and6_2
-	j	end_if6
-	
-	if_and6_2:
-	lw	$t2, 12($gp)			# final int finalHoleCol; // Global variable.
-	beq	$s2, $t2, if6			# tempFinalHoleCol =- finalHoleCole ? goto if6
+	addi	$t3, $0, 1					# constant value 1.
+	beq	$t2, $t3, if6					# noOfPegs == 1 ? goto if6
 	j	end_if6
 	
 	if6:
-		addi	$v0, $0, 1		# return 1; // true
-		j	return_solve_peg_solitaire
+		lw	$t2, 8($gp)				# final int finalHoleRow; // Global variable.
+		beq	$s1, $t2, if_and7_0			# tempFinalHoleRow == finalHoleRow ? goto if_and7_0
+		j	else7
+		
+		if_and7_0:
+		lw	$t2, 12($gp)				# final int finalHoleCol; // Global variable.
+		beq	$s2, $t2, if7				# tempFinalHoleCol =- finalHoleCole ? goto if7
+		j	else7
+		
+		if7:
+			addi	$v0, $0, 1			# return 1; // true
+			j	return_solve_peg_solitaire
+		
+		else7:
+			addi	$v0, $0, 0			# return 0; // false
+			j	return_solve_peg_solitaire
 	
 	end_if6:
 	
@@ -457,53 +463,38 @@ solve_peg_solitaire:
 		for3:
 			beq	$s4, $t1, end_for3	# c == 7 ? goto end_for3
 			
-			print_int($s3)
-			print_int($s4)
-			# print_hex($t9)
-			
 			# CHECK IF THE CURRENT ELEMENT IS A PEG.
 			load_elem_2D($s0, $s3, $s4, $t2)	# String boardState[r][c]; // $t2
 			lbu	$t3, 2($gp)			# const String pegHole = 'o';
+			beq	$t2, $t3, if8			# boardState[r][c] == 'o' ? goto if8
+			j	end_if8
 			
-			print_char($t2)
-			print_new_line()
-			
-			beq	$t2, $t3, if7			# boardState[r][c] == 'o' ? goto if7
-			j	end_if7
-			
-			if7:
+			if8:
 				# Check if there is an adjacent peg relative to the current peg.
         			# While doing this, check also if the hole destination is available.
         			# The order of peg-checking: North, East, South, and then West.
         			
-        			print_char($t2)
-        			print_new_line()
-			
 				# CHECK NORTH.
 				addi	$t2, $0, 1			# Constant value 1.
-				bgt	$s3, $t2, if_and8_1		# r > 1 ? goto if_and8_1
-				j	end_if8
+				bgt	$s3, $t2, if_and9_0		# r > 1 ? goto if_and9_0
+				j	end_if9
 				
-				if_and8_1:
+				if_and9_0:
 				subi	$t2, $s3, 1			# r - 1
 				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 1][c]; // $t3
 				lbu	$t4, 2($gp)			# pegHole = 'o';
-				beq	$t3, $t4, if_and8_2		# boardState[r - 1][c] == 'o' ? goto if_and8_2
-				j	end_if8
+				beq	$t3, $t4, if_and9_1		# boardState[r - 1][c] == 'o' ? goto if_and9_1
+				j	end_if9
 				
-				if_and8_2:
+				if_and9_1:
 				subi	$t2, $s3, 2			# r - 2
 				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 2][c]; // $t3
 				lbu	$t4, 1($gp)			# emptyHole = '.';
-				beq	$t3, $t4, if8			# boardState[r - 2][c] == '.' ? goto if8
-				j	end_if8
+				beq	$t3, $t4, if9			# boardState[r - 2][c] == '.' ? goto if9
+				j	end_if9
 				
 				
-				if8:
-					print_char($s3)
-					print_char($s4)
-        				print_new_line()
-				
+				if9:
 					# Perform deep copy on the boardState 2D list to produce
 					# newBoardState 2D list.
 					malloc(52, $t2)				# List<List<String>> newBoardState; // $t2
@@ -540,10 +531,10 @@ solve_peg_solitaire:
 					fn_solve_peg_solitaire($t2)
 					
 					# 1 is true, 0 is false.
-					bgtz  	$v0, if9			# isSolvable == true ? goto if9
-					j	else9
+					bgtz  	$v0, if10			# isSolvable == true ? goto if10
+					j	else10
 					
-					if9:
+					if10:
 						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
 						lbu	$t2, 5($gp)		# int nPegMoves;
 						sll	$t3, $t2, 4		# nPegMoves = nPegMoves * 16;
@@ -563,12 +554,14 @@ solve_peg_solitaire:
 						addi	$t2, $t2, 1		# nPegMoves++;
 						sb	$t2, 5($gp)
 						
+						# Deallocate the memory that the boardState 2D list
+						# used in this function stack.
+						free(52)
+						
 						addi	$v0, $0, 1		# return 1; // true
-						j	return_prep_solve_peg_solitaire
+						j	return_solve_peg_solitaire
 						
-						j	end_if9
-						
-					else9:
+					else10:
 						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
 						# metadata[0] = metadata[0] + 1;
 						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
@@ -577,10 +570,14 @@ solve_peg_solitaire:
 						
 						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
 						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
+						
+						# Deallocate the memory that the boardState 2D list
+						# used in this function stack.
+						free(52)
 					
-					end_if9:
+					end_if10:
 					
-				end_if8:
+				end_if9:
 				
 				
 				
@@ -602,7 +599,7 @@ solve_peg_solitaire:
 				# CHECK WEST.
 				
 				
-			end_if7:
+			end_if8:
 			
 			addi	$s4, $s4, 1		# c++;
 			j	for3
@@ -617,20 +614,16 @@ solve_peg_solitaire:
 	
 	# RETURN FALSE IF NO SOLUTION WAS FOUND FOR THIS BOARD STATE.
 	addi	$v0, $0, 0			# return 0;
-	
-return_prep_solve_peg_solitaire:
-	# Deallocate the memory that the boardState 2D list
-	# used in this function stack.
-	free(52)
 
 return_solve_peg_solitaire:
 	# DECOMPOSE STACK.
+	lw	$ra, 20($sp)
 	lw	$s0, 16($sp)
 	lw	$s1, 12($sp)
 	lw	$s2, 8($sp)
 	lw	$s3, 4($sp)
 	lw	$s4, 0($sp)
-	addiu	$sp, $sp, 20
+	addiu	$sp, $sp, 24
 	jr	$ra
 
 
