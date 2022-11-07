@@ -160,6 +160,10 @@ bool solveSolitairePeg({
     }
   }
 
+  // Perform deep copy on the newBoardState 2D list.
+  List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
+  heapMemory += 52;
+
   for (int r = 0; r < noOfRows; r++) {
     for (int c = 0; c < nowOfColumns; c++) {
       noOfCycles++;
@@ -173,10 +177,6 @@ bool solveSolitairePeg({
         if ((r >= 2) &&
             (boardState[r - 1][c] == pegHole) &&
             (boardState[r - 2][c] == emptyHole)) {
-          // Perform deep copy on the newBoardState 2D list.
-          List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          heapMemory += 52;
-
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
@@ -200,11 +200,15 @@ bool solveSolitairePeg({
 
             return true;
           } else {
+            // Revert back the previous data in the boardState.
+            newBoardState[r][c] = pegHole;
+            newBoardState[r - 1][c] = pegHole;
+            newBoardState[r - 2][c] = emptyHole;
+
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
-            heapMemory -= 52;
           }
         }
 
@@ -212,10 +216,6 @@ bool solveSolitairePeg({
         if ((c <= 4) &&
             (boardState[r][c + 1] == pegHole) &&
             (boardState[r][c + 2] == emptyHole)) {
-          // Perform deep copy on the newBoardState 2D list.
-          List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          heapMemory += 52;
-
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
@@ -239,11 +239,15 @@ bool solveSolitairePeg({
 
             return true;
           } else {
+            // Revert back the previous data in the boardState.
+            newBoardState[r][c] = pegHole;
+            newBoardState[r][c + 1] = pegHole;
+            newBoardState[r][c + 2] = emptyHole;
+
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
-            heapMemory -= 52;
           }
         }
 
@@ -251,10 +255,6 @@ bool solveSolitairePeg({
         if ((r <= 4) &&
             (boardState[r + 1][c] == pegHole) &&
             (boardState[r + 2][c] == emptyHole)) {
-          // Perform deep copy on the newBoardState 2D list.
-          List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          heapMemory += 52;
-
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
@@ -278,11 +278,15 @@ bool solveSolitairePeg({
 
             return true;
           } else {
+            // Revert back the previous data in the boardState.
+            newBoardState[r][c] = pegHole;
+            newBoardState[r + 1][c] = pegHole;
+            newBoardState[r + 2][c] = emptyHole;
+
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
-            heapMemory -= 52;
           }
         }
 
@@ -290,10 +294,6 @@ bool solveSolitairePeg({
         if ((c >= 2) &&
             (boardState[r][c - 1] == pegHole) &&
             (boardState[r][c - 2] == emptyHole)) {
-          // Perform deep copy on the newBoardState 2D list.
-          List<List<String>> newBoardState = deepCopy2DList<String>(boardState);
-          heapMemory += 52;
-
           // Update the boardState.
           // Make the coordinate of the jumping peg empty.
           newBoardState[r][c] = emptyHole;
@@ -317,16 +317,22 @@ bool solveSolitairePeg({
 
             return true;
           } else {
+            // Revert back the previous data in the boardState.
+            newBoardState[r][c] = pegHole;
+            newBoardState[r][c - 1] = pegHole;
+            newBoardState[r][c - 2] = emptyHole;
+
             // Revert back to the previous value of the metadata.
             metadata[0] = metadata[0] + 1;
             metadata[1] = tempFinalHoleRow;
             metadata[2] = tempFinalHoleColumn;
-            heapMemory -= 52;
           }
         }
       }
     }
   }
+
+  heapMemory -= 52;
 
   // No solution was found for the current boardState.
   return false;
