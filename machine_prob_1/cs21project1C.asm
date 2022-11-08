@@ -63,20 +63,20 @@
 	subiu	heapPtr, heapPtr, %size		# Update the heapPtr.
 .end_macro
 
-.macro load_elem_2D(%listAddr, %rowAddr, %colAddr, %addr)
+.macro load_elem_2D(%listAddr, %rowAddr, %colAddr, %addr, %rowSize)
 	# Compute for the index (as if it is in a 1D list).
-	# Formula: index = (row * 7) + col
-	mul	$t8, %rowAddr, 7		# Indices 0 to 6 per row.
+	# Formula: index = (row * rowSize) + col
+	mul	$t8, %rowAddr, %rowSize		# Indices 0 to (rowSize - 1) per row.
 	add	$t8, $t8, %colAddr
 	
 	addu	$t8, %listAddr, $t8
 	lbu	%addr, 0($t8)			# Return the loaded elem (store it to register %addr).
 .end_macro
 
-.macro store_elem_2D(%listAddr, %rowAddr, %colAddr, %elemAddr)
+.macro store_elem_2D(%listAddr, %rowAddr, %colAddr, %elemAddr, %rowSize)
 	# Compute for the index (as if it is in a 1D list).
-	# Formula: index = (row * 7) + col
-	mul	$t8, %rowAddr, 7		# Indices 0 to 6 per row.
+	# Formula: index = (row * rowSize) + col
+	mul	$t8, %rowAddr, %rowSize		# Indices 0 to (rowSize - 1) per row.
 	add	$t8, $t8, %colAddr
 	
 	addu	$t8, %listAddr, $t8
@@ -142,6 +142,9 @@ main:
 	# manage the allocation and deallocation of the heap memory.
 	addiu	heapPtr, $0, heapBasePtr	# int heapPtr = 0x10040000;
 	
+	print_hex(heapPtr)
+	print_new_line()
+	
 	# INITIALIZE THE METADATA.
 	# index 0: noOfPegs = The number of pegs remaining in the board.
 	# index 1: tempFinalHoleRow - Row coordinate of the latest moved peg in its final hole.
@@ -157,16 +160,16 @@ main:
 	
 	# INITIALIZE THE PEG MOVES SOLUTION LIST.
 	# This will be a 2-dimensional list.
-	# Each row is a list of 4 integer elements. Each integer will occupy 4 bytes (i.e., 1 word).
+	# Each row is a list of 4 integer elements. Each integer will occupy 1 byte.
 	# Logically, there will be at max. of 7 rows in this list because the max. possible number of pegs
 	# in a given board state is only 8. That is, at max. it will take 7 valid peg moves to find the solution.
-	# Hence, (7 * (4 * 4) = 112) bytes will be needed for the pegMovesSolution list.
+	# Hence, (7 * 4 = 28) bytes will be needed for the pegMovesSolution list.
 	#
 	# The index representation of a row: [startRow, startCol, finalRow, finalCol]
 	# The startRow and startCol represents the coordinate of the starting position of the moved peg.
 	# The finalRow and finalCol represents the coordinate of the destination/final position of the moved peg.
 	# This data will be used for displaying the move/s of the peg solitaire solution (if it exist).
-	malloc(112, $s2)
+	malloc(28, $s2)
 	sw	$s2, 20($gp)			# Store the list address as a global variable.
 
 	# INITIALIZE THE BOARD STATE.
@@ -194,9 +197,6 @@ main:
 		for1:
 			beq	$t3, $t1, end_for1	# c == nCols ? got end_for1
 			lbu	$t4, 0($t2)		# final String currentChar = tempRow[c]; // $t4
-			
-			print_char($t4)
-			print_new_line()
 			
 			# UPDATE THE NUMBER OF PEGS.
 			lbu	$t6, 2($gp)		# pegHole = 'o';
@@ -274,54 +274,6 @@ main:
 		
 	# FETCH AND DECODE THE RAW INPUTS. ===================================================================================
 	
-	print_new_line()
-	
-	addi	$t0, $0, 0			# int i = 0;
-	addi	$t1, $0, 49			# int size = 49; // 7 * 7 = 49 chars
-	move	$t2, $s0			# Memory pointer to the chars of boardState.
-
-	print_new_line()
-	
-	t_for0:
-		beq	$t0, $t1, t_end_for0
-		
-		lbu	$t3, 0($t2)		# currentChar
-		
-		# print_char($t3)
-		# print_new_line()
-		print_char($t3)
-		print_new_line()
-		
-		addiu	$t2, $t2, 1		# currentChar++
-		addi	$t0, $t0, 1		# i++;
-		j	t_for0
-	
-	t_end_for0:
-	
-	print_new_line()
-
-	lw	$t0, 0($s1)
-	print_int($t0)				# noOfPegs;
-	print_new_line()
-	
-	lw	$t0, 4($s1)
-	print_int($t0)				# tempFinalHoleRow;
-	print_new_line()
-	
-	lw	$t0, 8($s1)
-	print_int($t0)				# tempFinalHoleCol;
-	print_new_line()
-	
-	lw	$t0, 8($gp)
-	print_int($t0)				# finalHoleRow;
-	print_new_line()
-	
-	lw	$t0, 12($gp)
-	print_int($t0)				# finalHoleCol;
-	print_new_line()
-	print_new_line()
-	
-	
 	# Access list elements using this notation: myList[r][c];
 	addi	$t0, $0, 0			# int r = 0;
 	lbu	$t1, 0($gp)			# size = 7;
@@ -334,7 +286,7 @@ main:
 			beq	$t2, $t1, t_end_for2
 			
 			addi	$t4, $0, 69
-			load_elem_2D($s0, $t0, $t2, $t3)
+			load_elem_2D($s0, $t0, $t2, $t3, 7)
 			print_char($t3)
 			
 			addi	$t2, $t2, 1		# c++;
@@ -349,48 +301,83 @@ main:
 	
 	t_end_for1:
 	
+	fn_solve_peg_solitaire($s0)
+	move	$s3, $v0			# final isSolvable; // 1 -> true; 0 -> false
+	
+	addi	$t0, $0, 1
+	beq	$s3, $t0, if17			# isSolvable == true : goto if17
+	j	else17
+	
+	if17:
+		la	$a0, yesMsg
+		do_syscall(4)			# print('YES');
+		j	end_if_else17
+	
+	else17:
+		la	$a0, noMsg
+		do_syscall(4)			# print('NO');
+		j	end_if_else17
+	
+	end_if_else17:
+	
 	print_new_line()
 	
-	malloc(52, $s3)
-	copy_list_2D($s0, $s3, 49)
+	# PRINT THE MOVE/S (if it exist) OF THE PEG SOLITAIRE SOLUTION.
+	lw	$s2, 20($gp)					# List<List<int>> pegMovesSolution;
+	lbu	$t0, 5($gp)					# int nPegMoves;
+	subi	$t1, $t0, 1					# int r = nPegMoves - 1;
 	
-	# Access list elements using this notation: myList[r][c];
-	addi	$t0, $0, 0			# int r = 0;
-	lbu	$t1, 0($gp)			# size = 7;
-	
-	t_for3:
-		beq	$t0, $t1, t_end_for3
+	for4:
+		bltz	$t1 end_for4				# r < = ? goto end_for4
 		
-		addi	$t2, $0, 0		# int c = 0;
-		t_for4:
-			beq	$t2, $t1, t_end_for4
-			
-			addi	$t4, $0, 69
-			store_elem_2D($s3, $t0, $t2 ,$t4)
-			load_elem_2D($s3, $t0, $t2, $t3)
-			print_char($t3)
-			
-			addi	$t2, $t2, 1		# c++;
-			j	t_for4
+		# Initial row.
+		addi	$t2, $0, 0				# int c = 0;
+		load_elem_2D($s2, $t1, $t2, $t3, 4)
+		addi	$t3, $t3, 1
+		print_int($t3)
+		la	$a0, comma
+		do_syscall(4)
 		
-		t_end_for4:
+		# Initial column.
+		addi	$t2, $t2, 1				# c++;
+		load_elem_2D($s2, $t1, $t2, $t3, 4)
+		addi	$t3, $t3, 1
+		print_int($t3)
+		
+		la	$a0, rightArrow
+		do_syscall(4)
+		
+		# Final row.
+		addi	$t2, $t2, 1				# c++;
+		load_elem_2D($s2, $t1, $t2, $t3, 4)
+		addi	$t3, $t3, 1
+		print_int($t3)
+		la	$a0, comma
+		do_syscall(4)
+		
+		# Final column
+		addi	$t2, $t2, 1				# c++;
+		load_elem_2D($s2, $t1, $t2, $t3, 4)
+		addi	$t3, $t3, 1
+		print_int($t3)
 		
 		print_new_line()
 		
-		addi	$t0, $t0, 1		# r++;
-		j	t_for3
+		subi	$t1, $t1, 1				# r--;
+		j	for4
 	
-	t_end_for3:
+	end_for4:
 	
-	free(52)
-	
+	print_hex(heapPtr)
 	print_new_line()
 	
-	fn_solve_peg_solitaire($s0)
+	# FREE USED HEAP MEMORIES.
+	free(52)						# free(boardState);
+	free(28)						# free(pegMovesSolution);
+	free(12)						# free(metadata)
 	
-	print_int($v0)
+	print_hex(heapPtr)
 	print_new_line()
-	
 	
 	exit()
 
@@ -405,13 +392,10 @@ solve_peg_solitaire:
 	sw	$s3, 4($sp)
 	sw	$s4, 0($sp)
 	
-	# Save the address of this stack's boardState (for future reference).
-	move	$s0, $a0
-	
 	# Get the metadata list (global variable).
 	lw	$t0, 16($gp)			# List<int> metadata;
 
-	# BASE CASES.
+	# BASE CASES. ---------------------------------------------------------------------------------------------
 	# CASE 1: There are no pegs to be moved.
 	lw	$t2, 0($t0)			# int noOfPegs = metadata[0];
 	beqz	$t2, if5			# noOfPegs == 0 ? goto if5
@@ -440,7 +424,7 @@ solve_peg_solitaire:
 		
 		if_and7_0:
 		lw	$t2, 12($gp)				# final int finalHoleCol; // Global variable.
-		beq	$s2, $t2, if7				# tempFinalHoleCol =- finalHoleCole ? goto if7
+		beq	$s2, $t2, if7				# tempFinalHoleCol == finalHoleCole ? goto if7
 		j	else7
 		
 		if7:
@@ -452,6 +436,12 @@ solve_peg_solitaire:
 			j	return_solve_peg_solitaire
 	
 	end_if6:
+	# BASE CASES. =============================================================================================
+	
+	# Perform deep copy on the boardState 2D list to produce
+	# newBoardState 2D list.
+	malloc(52, $s0)				# List<List<String>> newBoardState; // $s0
+	copy_list_2D($a0, $s0, 49)		# newBoardState = copyList2D(boardState); // $s0
 	
 	# TRAVERSE EACH ELEMENTS OF THE BOARD.
 	addi	$s3, $0, 0			# int r = 0;
@@ -464,7 +454,7 @@ solve_peg_solitaire:
 			beq	$s4, $t1, end_for3	# c == 7 ? goto end_for3
 			
 			# CHECK IF THE CURRENT ELEMENT IS A PEG.
-			load_elem_2D($s0, $s3, $s4, $t2)	# String boardState[r][c]; // $t2
+			load_elem_2D($s0, $s3, $s4, $t2, 7)	# String boardState[r][c]; // $t2
 			lbu	$t3, 2($gp)			# const String pegHole = 'o';
 			beq	$t2, $t3, if8			# boardState[r][c] == 'o' ? goto if8
 			j	end_if8
@@ -474,45 +464,40 @@ solve_peg_solitaire:
         			# While doing this, check also if the hole destination is available.
         			# The order of peg-checking: North, East, South, and then West.
         			
-				# CHECK NORTH.
+				# CHECK NORTH. ---------------------------------------------------------------------------------------------
 				addi	$t2, $0, 1			# Constant value 1.
 				bgt	$s3, $t2, if_and9_0		# r > 1 ? goto if_and9_0
 				j	end_if9
 				
 				if_and9_0:
 				subi	$t2, $s3, 1			# r - 1
-				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 1][c]; // $t3
+				load_elem_2D($s0, $t2, $s4, $t3, 7)	# boardState[r - 1][c]; // $t3
 				lbu	$t4, 2($gp)			# pegHole = 'o';
 				beq	$t3, $t4, if_and9_1		# boardState[r - 1][c] == 'o' ? goto if_and9_1
 				j	end_if9
 				
 				if_and9_1:
 				subi	$t2, $s3, 2			# r - 2
-				load_elem_2D($s0, $t2, $s4, $t3)	# boardState[r - 2][c]; // $t3
+				load_elem_2D($s0, $t2, $s4, $t3, 7)	# boardState[r - 2][c]; // $t3
 				lbu	$t4, 1($gp)			# emptyHole = '.';
 				beq	$t3, $t4, if9			# boardState[r - 2][c] == '.' ? goto if9
 				j	end_if9
 				
 				
 				if9:
-					# Perform deep copy on the boardState 2D list to produce
-					# newBoardState 2D list.
-					malloc(52, $t2)				# List<List<String>> newBoardState; // $t2
-					copy_list_2D($s0, $t2, 49)		# newBoardState = copyList2D(boardState); // $t2
-					
 					# UPDATE THE BOARD STATE.
 					# Make the coordinate of the jumping peg empty.
 					lbu	$t3, 1($gp)			# emptyHole = '.';
-					store_elem_2D($t2, $s3, $s4, $t3)	# newBoardState[r][c] = '.';
+					store_elem_2D($s0, $s3, $s4, $t3, 7)	# newBoardState[r][c] = '.';
 					
 					# Delete the peg in the jumped-over hole.
 					subi	$t4, $s3, 1			# r - 1
-					store_elem_2D($t2, $t4, $s4, $t3)	# newBoardState[r - 1][c] = '.';
+					store_elem_2D($s0, $t4, $s4, $t3, 7)	# newBoardState[r - 1][c] = '.';
 					
 					# Put the peg on the new coordinate.
 					subi	$t4, $s3, 2			# r - 2
 					lbu	$t3, 2($gp)			# pegHole = 'o';
-					store_elem_2D($t2, $t4, $s4, $t3)	# newBoardState[r - 2][c] = 'o';
+					store_elem_2D($s0, $t4, $s4, $t3, 7)	# newBoardState[r - 2][c] = 'o';
 					
 					# UPDATE THE METATADA (noOfPegs, tempFinalHoleRow, tempFinalHoleCol).
 					# Decrement noOfPegs by 1.
@@ -528,7 +513,7 @@ solve_peg_solitaire:
 					
 					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE
 					# (AND IMPLICITY, THE NEW METADATA).
-					fn_solve_peg_solitaire($t2)
+					fn_solve_peg_solitaire($s0)
 					
 					# 1 is true, 0 is false.
 					bgtz  	$v0, if10			# isSolvable == true ? goto if10
@@ -537,31 +522,41 @@ solve_peg_solitaire:
 					if10:
 						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
 						lbu	$t2, 5($gp)		# int nPegMoves;
-						sll	$t3, $t2, 4		# nPegMoves = nPegMoves * 16;
+						sll	$t3, $t2, 2		# nPegMoves = nPegMoves * 4; // Memory address offset.
 						lw	$t4, 20($gp)		# List<List<int>> pegMovesSolution;
 						
 						# Right-adjacent position pointer to the most recent
 						# element in the pegMovesSolution list.
 						addu	$t3, $t3, $t4
 						
-						sw	$s3, 0($t3)		# r (startRow)
-						sw	$s4, 4($t3)		# c (startCol)
+						sb	$s3, 0($t3)		# r (startRow)
+						sb	$s4, 1($t3)		# c (startCol)
 						subi	$t4, $s3, 2		# r - 2
-						sw	$t4, 8($t3)		# r - 2 (finalRow)
-						sw	$s4, 12($t3)		# c (finalCol)
+						sb	$t4, 2($t3)		# r - 2 (finalRow)
+						sb	$s4, 3($t3)		# c (finalCol)
 						
 						# Update the pegMovesSolution list size.
 						addi	$t2, $t2, 1		# nPegMoves++;
 						sb	$t2, 5($gp)
 						
-						# Deallocate the memory that the boardState 2D list
-						# used in this function stack.
-						free(52)
-						
 						addi	$v0, $0, 1		# return 1; // true
-						j	return_solve_peg_solitaire
+						j	return_prep_solve_peg_solitaire
 						
 					else10:
+						# IF NOT SOLVABLE, THEN REVERT BACK THE BOARD STATE TO ITS PREVIOUS VALUE.
+						# Put back the jumping peg to its original coordinate.
+						lbu	$t2, 2($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $s4, $t2, 7)	# newBoardState[r][c] = 'o';
+						
+						# Put back the jumped over peg.
+						subi	$t3, $s3, 1			# r - 1
+						store_elem_2D($s0, $t3, $s4, $t2, 7)	# newBoardState[r - 1][c] = 'o';
+						
+						# Remove the should the peg on the final/landing coordinate.
+						subi	$t3, $s3, 2			# r - 2
+						lbu	$t2, 1($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $t3, $s4, $t2, 7)	# newBoardState[r - 2][c] = '.';
+					
 						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
 						# metadata[0] = metadata[0] + 1;
 						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
@@ -571,33 +566,331 @@ solve_peg_solitaire:
 						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
 						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
 						
-						# Deallocate the memory that the boardState 2D list
-						# used in this function stack.
-						free(52)
-					
 					end_if10:
 					
 				end_if9:
+				# CHECK NORTH. =============================================================================================
+				
+				# CHECK EAST. ----------------------------------------------------------------------------------------------
+				addi	$t2, $0, 5			# Constant value 5.
+				blt	$s4, $t2, if_and11_0		# c < 5 ? goto if_and11_0
+				j	end_if11
+				
+				if_and11_0:
+				addi	$t2, $s4, 1			# c + 1
+				load_elem_2D($s0, $s3, $t2, $t3, 7)	# boardState[r][c + 1]; // $t3
+				lbu	$t4, 2($gp)			# pegHole = 'o';
+				beq	$t3, $t4, if_and11_1		# boardState[r][c + 1] == 'o' ? goto if_and11_1
+				j	end_if11
+				
+				if_and11_1:
+				addi	$t2, $s4, 2			# c + 2
+				load_elem_2D($s0, $s3, $t2, $t3, 7)	# boardState[r][c + 2]; // $t3
+				lbu	$t4, 1($gp)			# emptyHole = '.';
+				beq	$t3, $t4, if11			# boardState[r][c + 2] == '.' ? goto if11
+				j	end_if11
 				
 				
+				if11:
+					# UPDATE THE BOARD STATE.
+					# Make the coordinate of the jumping peg empty.
+					lbu	$t3, 1($gp)			# emptyHole = '.';
+					store_elem_2D($s0, $s3, $s4, $t3, 7)	# newBoardState[r][c] = '.';
+					
+					# Delete the peg in the jumped-over hole.
+					addi	$t4, $s4, 1			# c + 1
+					store_elem_2D($s0, $s3, $t4, $t3, 7)	# newBoardState[r][c + 1] = '.';
+					
+					# Put the peg on the new coordinate.
+					addi	$t4, $s4, 2			# c + 2
+					lbu	$t3, 2($gp)			# pegHole = 'o';
+					store_elem_2D($s0, $s3, $t4, $t3, 7)	# newBoardState[r][c + 2] = 'o';
+					
+					# UPDATE THE METATADA (noOfPegs, tempFinalHoleRow, tempFinalHoleCol).
+					# Decrement noOfPegs by 1.
+					# metadata[0] = metadata[0] - 1;
+					lw	$t3, 0($t0)			# noOfPegs = metadata[0];
+					subi	$t3, $t3, 1			# noOfPegs--;
+					sw	$t3, 0($t0)
+					
+					# Determine the new tempFinalHole coordinate.
+					sw	$s3, 4($t0)			# metadata[1] = r;
+					addi	$t3, $s4, 2			# c + 2
+					sw	$t3, 8($t0)			# metadata[2] = c + 2;
+					
+					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE
+					# (AND IMPLICITY, THE NEW METADATA).
+					fn_solve_peg_solitaire($s0)
+					
+					# 1 is true, 0 is false.
+					bgtz  	$v0, if12			# isSolvable == true ? goto if12
+					j	else12
+					
+					if12:
+						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
+						lbu	$t2, 5($gp)		# int nPegMoves;
+						sll	$t3, $t2, 2		# nPegMoves = nPegMoves * 2; // Memory address offset.
+						lw	$t4, 20($gp)		# List<List<int>> pegMovesSolution;
+						
+						# Right-adjacent position pointer to the most recent
+						# element in the pegMovesSolution list.
+						addu	$t3, $t3, $t4
+						
+						sb	$s3, 0($t3)		# r (startRow)
+						sb	$s4, 1($t3)		# c (startCol)
+						sb	$s3, 2($t3)		# r (finalRow)
+						addi	$t4, $s4, 2		# c + 2
+						sb	$t4, 3($t3)		# c + 2 (finalCol)
+						
+						# Update the pegMovesSolution list size.
+						addi	$t2, $t2, 1		# nPegMoves++;
+						sb	$t2, 5($gp)
+						
+						addi	$v0, $0, 1		# return 1; // true
+						j	return_prep_solve_peg_solitaire
+						
+					else12:
+						# IF NOT SOLVABLE, THEN REVERT BACK THE BOARD STATE TO ITS PREVIOUS VALUE.
+						# Put back the jumping peg to its original coordinate.
+						lbu	$t2, 2($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $s4, $t2, 7)	# newBoardState[r][c] = 'o';
+						
+						# Put back the jumped over peg.
+						addi	$t3, $s4, 1			# c + 1
+						store_elem_2D($s0, $s3, $t3, $t2, 7)	# newBoardState[r][c + 1] = 'o';
+						
+						# Remove the should the peg on the final/landing coordinate.
+						addi	$t3, $s4, 2			# c + 2
+						lbu	$t2, 1($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $t3, $t2, 7)	# newBoardState[r][c + 2] = '.';
+					
+						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
+						# metadata[0] = metadata[0] + 1;
+						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
+						addi	$t2, $t2, 1		# noOfPegs++;
+						sw	$t2, 0($t0)
+						
+						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
+						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
+						
+					end_if12:
+					
+				end_if11:
+				# CHECK EAST. ==============================================================================================
+				
+				# CHECK SOUTH. ---------------------------------------------------------------------------------------------
+				addi	$t2, $0, 5			# Constant value 5.
+				blt	$s3, $t2, if_and13_0		# r < 5 ? goto if_and13_0
+				j	end_if13
+				
+				if_and13_0:
+				addi	$t2, $s3, 1			# r + 1
+				load_elem_2D($s0, $t2, $s4, $t3, 7)	# boardState[r + 1][c]; // $t3
+				lbu	$t4, 2($gp)			# pegHole = 'o';
+				beq	$t3, $t4, if_and13_1		# boardState[r + 1][c] == 'o' ? goto if_and13_1
+				j	end_if13
+				
+				if_and13_1:
+				addi	$t2, $s3, 2			# r + 2
+				load_elem_2D($s0, $t2, $s4, $t3, 7)	# boardState[r + 2][c]; // $t3
+				lbu	$t4, 1($gp)			# emptyHole = '.';
+				beq	$t3, $t4, if13			# boardState[r + 2][c] == '.' ? goto if13
+				j	end_if13
 				
 				
-				# CHECK EAST.
+				if13:
+					# UPDATE THE BOARD STATE.
+					# Make the coordinate of the jumping peg empty.
+					lbu	$t3, 1($gp)			# emptyHole = '.';
+					store_elem_2D($s0, $s3, $s4, $t3, 7)	# newBoardState[r][c] = '.';
+					
+					# Delete the peg in the jumped-over hole.
+					addi	$t4, $s3, 1			# r + 1
+					store_elem_2D($s0, $t4, $s4, $t3, 7)	# newBoardState[r + 1][c] = '.';
+					
+					# Put the peg on the new coordinate.
+					addi	$t4, $s3, 2			# r + 2
+					lbu	$t3, 2($gp)			# pegHole = 'o';
+					store_elem_2D($s0, $t4, $s4, $t3, 7)	# newBoardState[r + 2][c] = 'o';
+					
+					# UPDATE THE METATADA (noOfPegs, tempFinalHoleRow, tempFinalHoleCol).
+					# Decrement noOfPegs by 1.
+					# metadata[0] = metadata[0] - 1;
+					lw	$t3, 0($t0)			# noOfPegs = metadata[0];
+					subi	$t3, $t3, 1			# noOfPegs--;
+					sw	$t3, 0($t0)
+					
+					# Determine the new tempFinalHole coordinate.
+					addi	$t3, $s3, 2			# r + 2
+					sw	$t3, 4($t0)			# metadata[1] = r + 2;
+					sw	$s4, 8($t0)			# metadata[2] = c;
+					
+					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE
+					# (AND IMPLICITY, THE NEW METADATA).
+					fn_solve_peg_solitaire($s0)
+					
+					# 1 is true, 0 is false.
+					bgtz  	$v0, if14			# isSolvable == true ? goto if14
+					j	else14
+					
+					if14:
+						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
+						lbu	$t2, 5($gp)		# int nPegMoves;
+						sll	$t3, $t2, 2		# nPegMoves = nPegMoves * 4; // Memory address offset.
+						lw	$t4, 20($gp)		# List<List<int>> pegMovesSolution;
+						
+						# Right-adjacent position pointer to the most recent
+						# element in the pegMovesSolution list.
+						addu	$t3, $t3, $t4
+						
+						sb	$s3, 0($t3)		# r (startRow)
+						sb	$s4, 1($t3)		# c (startCol)
+						addi	$t4, $s3, 2		# r + 2
+						sb	$t4, 2($t3)		# r + 2 (finalRow)
+						sb	$s4, 3($t3)		# c (finalCol)
+						
+						# Update the pegMovesSolution list size.
+						addi	$t2, $t2, 1		# nPegMoves++;
+						sb	$t2, 5($gp)
+						
+						addi	$v0, $0, 1		# return 1; // true
+						j	return_prep_solve_peg_solitaire
+						
+					else14:
+						# IF NOT SOLVABLE, THEN REVERT BACK THE BOARD STATE TO ITS PREVIOUS VALUE.
+						# Put back the jumping peg to its original coordinate.
+						lbu	$t2, 2($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $s4, $t2, 7)	# newBoardState[r][c] = 'o';
+						
+						# Put back the jumped over peg.
+						addi	$t3, $s3, 1			# r + 1
+						store_elem_2D($s0, $t3, $s4, $t2, 7)	# newBoardState[r + 1][c] = 'o';
+						
+						# Remove the should the peg on the final/landing coordinate.
+						addi	$t3, $s3, 2			# r + 2
+						lbu	$t2, 1($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $t3, $s4, $t2, 7)	# newBoardState[r + 2][c] = '.';
+					
+						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
+						# metadata[0] = metadata[0] + 1;
+						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
+						addi	$t2, $t2, 1		# noOfPegs++;
+						sw	$t2, 0($t0)
+						
+						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
+						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
+						
+					end_if14:
+					
+				end_if13:
+				# CHECK SOUTH. =============================================================================================
+				
+				# CHECK WEST. ----------------------------------------------------------------------------------------------
+				addi	$t2, $0, 1			# Constant value 1.
+				bgt	$s4, $t2, if_and15_0		# c > 1 ? goto if_and15_0
+				j	end_if15
+				
+				if_and15_0:
+				subi	$t2, $s4, 1			# c - 1
+				load_elem_2D($s0, $s3, $t2, $t3, 7)	# boardState[r][c - 1]; // $t3
+				lbu	$t4, 2($gp)			# pegHole = 'o';
+				beq	$t3, $t4, if_and15_1		# boardState[r + 1][c] == 'o' ? goto if_and15_1
+				j	end_if15
+				
+				if_and15_1:
+				subi	$t2, $s4, 2			# c - 2
+				load_elem_2D($s0, $s3, $t2, $t3, 7)	# boardState[r][c - 2]; // $t3
+				lbu	$t4, 1($gp)			# emptyHole = '.';
+				beq	$t3, $t4, if15			# boardState[r + 2][c] == '.' ? goto if15
+				j	end_if15
 				
 				
-				
-				
-				
-				
-				# CHECK SOUTH.
-				
-				
-				
-				
-				
-				
-				# CHECK WEST.
-				
+				if15:
+					# UPDATE THE BOARD STATE.
+					# Make the coordinate of the jumping peg empty.
+					lbu	$t3, 1($gp)			# emptyHole = '.';
+					store_elem_2D($s0, $s3, $s4, $t3, 7)	# newBoardState[r][c] = '.';
+					
+					# Delete the peg in the jumped-over hole.
+					subi	$t4, $s4, 1			# c - 1
+					store_elem_2D($s0, $s3, $t4, $t3, 7)	# newBoardState[r][c - 1]= '.';
+					
+					# Put the peg on the new coordinate.
+					subi	$t4, $s4, 2			# c - 2
+					lbu	$t3, 2($gp)			# pegHole = 'o';
+					store_elem_2D($s0, $s3, $t4, $t3, 7)	# newBoardState[r][c - 2] = 'o';
+					
+					# UPDATE THE METATADA (noOfPegs, tempFinalHoleRow, tempFinalHoleCol).
+					# Decrement noOfPegs by 1.
+					# metadata[0] = metadata[0] - 1;
+					lw	$t3, 0($t0)			# noOfPegs = metadata[0];
+					subi	$t3, $t3, 1			# noOfPegs--;
+					sw	$t3, 0($t0)
+					
+					# Determine the new tempFinalHole coordinate.
+					sw	$s3, 4($t0)			# metadata[1] = r;
+					subi	$t3, $s4, 2			# c - 2
+					sw	$t3, 8($t0)			# metadata[2] = c - 2;
+					
+					# RECUR: CALL THIS FUNCTION AGAIN USING THE NEW BOARD STATE
+					# (AND IMPLICITY, THE NEW METADATA).
+					fn_solve_peg_solitaire($s0)
+					
+					# 1 is true, 0 is false.
+					bgtz  	$v0, if16			# isSolvable == true ? goto if16
+					j	else16
+					
+					if16:
+						# ADD THE MOVE DETAILS TO THE PEG MOVES SOLUTION LIST.
+						lbu	$t2, 5($gp)		# int nPegMoves;
+						sll	$t3, $t2, 2		# nPegMoves = nPegMoves * 4; // Memory address offset.
+						lw	$t4, 20($gp)		# List<List<int>> pegMovesSolution;
+						
+						# Right-adjacent position pointer to the most recent
+						# element in the pegMovesSolution list.
+						addu	$t3, $t3, $t4
+						
+						sb	$s3, 0($t3)		# r (startRow)
+						sb	$s4, 1($t3)		# c (startCol)
+						sb	$s3, 2($t3)		# r (finalRow)
+						subi	$t4, $s4, 2		# c - 2
+						sb	$t4, 3($t3)		# c - 2 (finalCol)
+						
+						# Update the pegMovesSolution list size.
+						addi	$t2, $t2, 1		# nPegMoves++;
+						sb	$t2, 5($gp)
+						
+						addi	$v0, $0, 1		# return 1; // true
+						j	return_prep_solve_peg_solitaire
+						
+					else16:
+						# IF NOT SOLVABLE, THEN REVERT BACK THE BOARD STATE TO ITS PREVIOUS VALUE.
+						# Put back the jumping peg to its original coordinate.
+						lbu	$t2, 2($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $s4, $t2, 7)	# newBoardState[r][c] = 'o';
+						
+						# Put back the jumped over peg.
+						subi	$t3, $s4, 1			# c - 1
+						store_elem_2D($s0, $s3, $t3, $t2, 7)	# newBoardState[r][c - 1] = 'o';
+						
+						# Remove the should the peg on the final/landing coordinate.
+						subi	$t3, $s4, 2			# c - 2
+						lbu	$t2, 1($gp)			# pegHole = 'o';
+						store_elem_2D($s0, $s3, $t3, $t2, 7)	# newBoardState[r][c - 2] = '.';
+					
+						# IF NOT SOLVABLE, THEN REVERT BACK THE METADATA TO ITS PREVIOUS VALUE.
+						# metadata[0] = metadata[0] + 1;
+						lw	$t2, 0($t0)		# noOfPegs = metadata[0];
+						addi	$t2, $t2, 1		# noOfPegs++;
+						sw	$t2, 0($t0)
+						
+						sw	$s1, 4($t0)		# metadata[1] = oldTempFinalHoleRow;
+						sw	$s2, 8($t0)		# metadata[2] = oldTempFinalHoleColumn;
+						
+					end_if16:
+					
+				end_if15:
+				# CHECK WEST. ==============================================================================================
 				
 			end_if8:
 			
@@ -611,9 +904,13 @@ solve_peg_solitaire:
 		
 	end_for2:
 	
-	
 	# RETURN FALSE IF NO SOLUTION WAS FOUND FOR THIS BOARD STATE.
 	addi	$v0, $0, 0			# return 0;
+	
+return_prep_solve_peg_solitaire:
+	# Deallocate the memory that the boardState 2D list
+	# used in this function stack.
+	free(52)
 
 return_solve_peg_solitaire:
 	# DECOMPOSE STACK.
@@ -630,6 +927,10 @@ return_solve_peg_solitaire:
 .data
 	# Allocate 9 bytes in each row becuse of the (new line + null terminator).
 	rowInputBuffer:	.space 9
+	yesMsg: 	.asciiz "YES"
+	noMsg:		.asciiz "NO"
+	rightArrow:	.asciiz "->"
+	comma:		.asciiz ","
 	
 	
 

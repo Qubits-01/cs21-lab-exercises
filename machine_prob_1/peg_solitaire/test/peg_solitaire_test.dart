@@ -460,7 +460,7 @@ void main() {
     },
   );
 
-  test('Other sample test case 1 (w/ "E" value).', () {
+  test('Other sample test case 1.', () {
     // Arrange.
     const input = [
       '...xx.x',
@@ -477,5 +477,24 @@ void main() {
 
     // Assert.
     expect(output[0], equals('NO'));
+  });
+
+  test('Other sample test case 2.', () {
+    // Arrange.
+    const input = [
+      'xx...xx',
+      'xx...xx',
+      '...oo..',
+      '..o.o..',
+      '..o.o..',
+      'xx..Exx',
+      'xx...xx'
+    ];
+
+    // Act.
+    final List<String> output = main_file.main(input);
+
+    // Assert.
+    expect(output[0], equals('YES'));
   });
 }
