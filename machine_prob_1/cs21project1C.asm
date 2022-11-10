@@ -142,9 +142,6 @@ main:
 	# manage the allocation and deallocation of the heap memory.
 	addiu	heapPtr, $0, heapBasePtr	# int heapPtr = 0x10040000;
 	
-	print_hex(heapPtr)
-	print_new_line()
-	
 	# INITIALIZE THE METADATA.
 	# index 0: noOfPegs = The number of pegs remaining in the board.
 	# index 1: tempFinalHoleRow - Row coordinate of the latest moved peg in its final hole.
@@ -274,33 +271,6 @@ main:
 		
 	# FETCH AND DECODE THE RAW INPUTS. ===================================================================================
 	
-	# Access list elements using this notation: myList[r][c];
-	addi	$t0, $0, 0			# int r = 0;
-	lbu	$t1, 0($gp)			# size = 7;
-	
-	t_for1:
-		beq	$t0, $t1, t_end_for1
-		
-		addi	$t2, $0, 0		# int c = 0;
-		t_for2:
-			beq	$t2, $t1, t_end_for2
-			
-			addi	$t4, $0, 69
-			load_elem_2D($s0, $t0, $t2, $t3, 7)
-			print_char($t3)
-			
-			addi	$t2, $t2, 1		# c++;
-			j	t_for2
-		
-		t_end_for2:
-		
-		print_new_line()
-		
-		addi	$t0, $t0, 1		# r++;
-		j	t_for1
-	
-	t_end_for1:
-	
 	fn_solve_peg_solitaire($s0)
 	move	$s3, $v0			# final isSolvable; // 1 -> true; 0 -> false
 	
@@ -368,16 +338,10 @@ main:
 	
 	end_for4:
 	
-	print_hex(heapPtr)
-	print_new_line()
-	
 	# FREE USED HEAP MEMORIES.
 	free(52)						# free(boardState);
 	free(28)						# free(pegMovesSolution);
 	free(12)						# free(metadata)
-	
-	print_hex(heapPtr)
-	print_new_line()
 	
 	exit()
 
@@ -932,5 +896,3 @@ return_solve_peg_solitaire:
 	rightArrow:	.asciiz "->"
 	comma:		.asciiz ","
 	
-	
-

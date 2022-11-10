@@ -1,0 +1,119 @@
+1. Check base case.
+.......
+xx...xx
+xx.ooxx
+xx.ooxx
+xxoooxx
+..ooE..
+...oo..
+NO
+
+2. Check base case.
+xxO..xx
+xx...xx
+.......
+.......
+.......
+xx...xx
+xx...xx
+YES
+
+3. Check north.
+xx...xx
+xx.E.xx
+...o...
+...o...
+.......
+xx...xx
+xx...xx
+YES
+
+4. Check north.
+xx.E.xx
+xx.x.xx
+...o...
+...o...
+.......
+xx...xx
+xx...xx
+NO
+
+5. Check north.
+xx.E.xx
+xx.o.xx
+...x...
+...o...
+.......
+xx...xx
+xx...xx
+NO
+
+6. Check north.
+xx.E.xx
+xx.o.xx
+.......
+...o...
+.......
+xx...xx
+xx...xx
+NO
+
+7. Check north.
+xx.E.xx
+xx.o.xx
+.......
+.......
+...o...
+xx...xx
+xx...xx
+NO
+
+8. Check north.
+xx.o.xx
+xx...xx
+.......
+...O...
+.......
+xx...xx
+xx.o.xx
+NO
+
+9. Check north.
+xx.E.xx
+xx.o.xx
+...o...
+...o...
+.......
+xx...xx
+xx...xx
+NO
+
+10. Check north.
+xx.o.xx
+xx.o.xx
+...O...
+.......
+.......
+xx...xx
+xx...xx
+NO
+
+11. Check north.
+xx...xx
+xx...xx
+.......
+.......
+...E...
+xx.o.xx
+xx.o.xx
+YES
+
+12. Check north.
+xx.E.xx
+xx.o.xx
+.......
+...o...
+.......
+xx.o.xx
+xx.o.xx
+YES
