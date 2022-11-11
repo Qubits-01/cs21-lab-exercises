@@ -1,11 +1,11 @@
 1. Check base case.
+xxE..xx
+xx...xx
+.......
+.......
 .......
 xx...xx
-xx.ooxx
-xx.ooxx
-xxoooxx
-..ooE..
-...oo..
+xx...xx
 NO
 
 2. Check base case.
@@ -116,4 +116,884 @@ xx.o.xx
 .......
 xx.o.xx
 xx.o.xx
+YES
+
+13. Check east.
+xx...xx
+xx...xx
+.......
+...ooE.
+.......
+xx...xx
+xx...xx
+YES
+
+14. Check east.
+xx...xx
+xx...xx
+.......
+...ooxE
+.......
+xx...xx
+xx...xx
+NO
+
+15. Check east.
+xx...xx
+xx...xx
+.......
+...oxoE
+.......
+xx...xx
+xx...xx
+NO
+
+16. Check east.
+xx...xx
+xx...xx
+.......
+...o.oE
+.......
+xx...xx
+xx...xx
+NO
+
+17. Check east.
+xx...xx
+xx...xx
+.......
+..o..oE
+.......
+xx...xx
+xx...xx
+NO
+
+18. Check east.
+xx...xx
+xx...xx
+.......
+o..O..o
+.......
+xx...xx
+xx...xx
+NO
+
+19. Check east.
+xx...xx
+xx...xx
+.......
+...oooE
+.......
+xx...xx
+xx...xx
+NO
+
+20. Check east.
+xx...xx
+xx...xx
+.......
+....Ooo
+.......
+xx...xx
+xx...xx
+NO
+
+21. Check east.
+xx...xx
+xx...xx
+.......
+ooE....
+.......
+xx...xx
+xx...xx
+YES
+
+22. Check east.
+xx...xx
+xx...xx
+.......
+oo.o.oE
+.......
+xx...xx
+xx...xx
+YES
+
+23. Check south.
+xx...xx
+xx...xx
+.......
+...o...
+...o...
+xx.E.xx
+xx...xx
+YES
+
+24. Check south.
+xx...xx
+xx...xx
+.......
+...o...
+...o...
+xx.x.xx
+xx.E.xx
+NO
+
+25. Check south.
+xx...xx
+xx...xx
+.......
+...o...
+...x...
+xx.o.xx
+xx.E.xx
+NO
+
+26. Check south.
+xx...xx
+xx...xx
+.......
+...o...
+.......
+xx.o.xx
+xx.E.xx
+NO
+
+27. Check south.
+xx...xx
+xx...xx
+...o...
+.......
+.......
+xx.o.xx
+xx.E.xx
+NO
+
+28. Check south.
+xx.o.xx
+xx...xx
+.......
+...O...
+.......
+xx...xx
+xx.o.xx
+NO
+
+29. Check south.
+xx...xx
+xx...xx
+.......
+...o...
+...o...
+xx.o.xx
+xx.E.xx
+NO
+
+30. Check south.
+xx...xx
+xx...xx
+.......
+.......
+...O...
+xx.o.xx
+xx.o.xx
+NO
+
+31. Check south.
+xx.o.xx
+xx.o.xx
+...E...
+.......
+.......
+xx...xx
+xx...xx
+YES
+
+32. Check south.
+xx.o.xx
+xx.o.xx
+.......
+...o...
+.......
+xx.o.xx
+xx.E.xx
+YES
+
+33. Check west.
+xx...xx
+xx...xx
+.......
+.Eoo...
+.......
+xx...xx
+xx...xx
+YES
+
+34. Check west.
+xx...xx
+xx...xx
+.......
+Exoo...
+.......
+xx...xx
+xx...xx
+NO
+
+35. Check west.
+xx...xx
+xx...xx
+.......
+Eoxo...
+.......
+xx...xx
+xx...xx
+NO
+
+36. Check west.
+xx...xx
+xx...xx
+.......
+Eo.o...
+.......
+xx...xx
+xx...xx
+NO
+
+37. Check west.
+xx...xx
+xx...xx
+.......
+Eo..o..
+.......
+xx...xx
+xx...xx
+NO
+
+38. Check west.
+xx...xx
+xx...xx
+.......
+o..O..o
+.......
+xx...xx
+xx...xx
+NO
+
+39. Check west.
+xx...xx
+xx...xx
+.......
+Eooo...
+.......
+xx...xx
+xx...xx
+NO
+
+40. Check west.
+xx...xx
+xx...xx
+.......
+ooO....
+.......
+xx...xx
+xx...xx
+NO
+
+41. Check west.
+xx...xx
+xx...xx
+.......
+....Eoo
+.......
+xx...xx
+xx...xx
+YES
+
+42. Check west.
+xx...xx
+xx...xx
+.......
+Eo.o.oo
+.......
+xx...xx
+xx...xx
+YES
+
+43. From 4.3. sample test case 1 (w/ "O" value).
+xx...xx
+xxo..xx
+..o....
+..oO...
+.......
+xx...xx
+xx...xx
+YES
+
+44. From 4.3. sample test case 2 (w/ "E" value).
+...xE.o
+...oo..
+...oo..
+.......
+.......
+.......
+.......
+YES
+
+45. From 4.3. Modified test code 1 (w/ "O" value).
+xx...xx
+xxo..xx
+..O....
+..oo...
+.......
+xx...xx
+xx...xx
+NO
+
+46. From 4.3. Modified test code 2 (w/ "E" value).
+xx...xx
+xxo..xx
+..o....
+..oo...
+.......
+xx.E.xx
+xx...xx
+NO
+
+47. From 4.1. modified test case 1 (w/ "E" value).
+xx...xx
+xxo..xx
+..o....
+E.oo...
+.......
+xx...xx
+xx...xx
+YES
+
+48. When there is only one E-value.
+.......
+.......
+.......
+...E...
+.......
+.......
+.......
+NO
+
+49. When there is only one O-value.
+.......
+.......
+.......
+.......
+.......
+.......
+.....O.
+YES
+
+50. When no pegs can be moved and the board is not solved.
+xx...xx
+xx...xx
+...o...
+...E...
+...o...
+xx...xx
+xx...xx
+NO
+
+51. When pegs can be moved but no sequence leads to a solved board.
+xx...xx
+xx...xx
+..Oo...
+..o....
+.......
+xx...xx
+xx...xx
+NO
+
+52. Tests for movement overflow which might happen if only one index is used to access tiles. (board[3][3] VS board[24])
+xx...xx
+xx...xx
+......o
+O......
+.......
+xx...xx
+xx...xx
+NO
+
+53. Test case for boards with different `x` placement.
+Oo...xx
+o.o..xx
+.o...xx
+.....xx
+xxxxxxx
+xxxxxxx
+xxxxxxx
+YES
+
+54. Test case for board made unsolvable due to an `x`.
+.......
+.x.....
+.o...E.
+..oo...
+xx.....
+.......
+.......
+NO
+
+55. Test case for 5 pegs.
+xx...xx
+xxo..xx
+..o....
+....E..
+..o.o..
+xx.o.xx
+xx...xx
+YES
+
+56. Test case for 6 pegs.
+xx...xx
+xx...xx
+....o..
+.....oo
+..E....
+xxo.oxx
+xx.o.xx
+YES
+
+57. Test case for 7 pegs.
+xx.o.xx
+xxO.oxx
+..oo...
+...oo..
+.......
+xx...xx
+xx...xx
+YES
+
+58. Test case for 7 pegs. (1)
+xx.o.xx
+xxo.oxx
+..oo...
+...oo..
+..E....
+xx...xx
+xx...xx
+YES
+
+59. Test case for 7 pegs. (2)
+xx.o.xx
+xxo.oxx
+..oo...
+...oo..
+.....E.
+xx...xx
+xx...xx
+YES
+
+60. Test case for 8 pegs.
+xx.o.xx
+xxooOxx
+..oo...
+...oo..
+.......
+xx...xx
+xx...xx
+YES
+
+61. Test case for 8 pegs. (1)
+xx.o.xx
+xxoooxx
+..ooE..
+...oo..
+.......
+xx...xx
+xx...xx
+NO
+
+62. Test case for 8 pegs. (2)
+.......
+xx...xx
+xx...xx
+xx.o.xx
+xxoooxx
+..ooE..
+...oo..
+NO
+
+63. Test case for 8 pegs. (3)
+.......
+.......
+...o...
+..ooo..
+..ooE..
+...oo..
+.......
+NO
+
+64. Other sample test case 1.
+...xx.x
+...xE.o
+...oo..
+x..oo..
+..xxx..
+...x...
+o..x...
+NO
+
+65. Other sample test case 2.
+xx...xx
+xx...xx
+...oo..
+..o.o..
+..o.o..
+xx..Exx
+xx...xx
+YES
+
+66. 8 pegs.
+xx...xx
+xx...xx
+.......
+.oo.oo.
+.oO.oo.
+xx...xx
+xx...xx
+NO
+
+67. 8 pegs.
+.......
+.......
+.......
+.oo.oo.
+.oO.oo.
+.......
+.......
+NO
+
+68. When the middle peg is an x edge case (north).
+xx...xx
+xx...xx
+..E....
+..x....
+..o....
+xx...xx
+xx...xx
+NO
+
+69. When the middle peg is an x edge case (east).
+xx...xx
+xx...xx
+.......
+...oxE.
+.......
+xx...xx
+xx...xx
+NO
+
+70. When the middle peg is an x edge case (south).
+xx...xx
+xx...xx
+...o...
+...x...
+...E...
+xx...xx
+xx...xx
+NO
+
+71. When the middle peg is an x edge case (west).
+xx...xx
+xx...xx
+..Exo..
+.......
+.......
+xx...xx
+xx...xx
+NO
+
+72. When there is only one peg but an E exists somewhere else.
+xx...xx
+xx...xx
+.......
+...o.E.
+.......
+xx...xx
+xx...xx
+NO
+
+73. Test case for 8 pegs (max number of pegs in the MP). (slightly modified implementation from Implementation A but with E)
+xx.o.xx
+xxo.oxx
+..ooE..
+..o.o..
+...o...
+xx...xx
+xx...xx
+YES
+
+74. Test case for 8 pegs (max number of pegs in the MP). (slightly modified implementation from Implementation A but with an unreachable E)
+xx.o.xx
+xxoEoxx
+..oo...
+..o.o..
+...o...
+xx...xx
+xx...xx
+NO
+
+75. From Jeric and friends.
+xx.o.xx
+xx..oxx
+.xoo.x.
+...E.o.
+....oox
+xx.o.xx
+xx...xx
+YES
+
+76. From Jeric and friends.
+xxxxxxx
+xxxxxxx
+.......
+....o..
+.o..o..
+ox.o...
+oE..oo.
+YES
+
+77. From Jeric and friends.
+.......
+.......
+.......
+..xxx..
+..xOx..
+..xxx..
+.......
+YES
+
+78. From Jeric and friends.
+...o...
+....o..
+..oo...
+...E.o.
+....oo.
+...o...
+.......
+YES
+
+79. From Jeric and friends.
+.......
+..o.o..
+.oxxxo.
+..x.x..
+.oxxxo.
+.Oo.o..
+.......
+YES
+
+80. From Jeric and friends.
+..x....
+..x....
+.......
+xox....
+o.ooOo.
+x.x....
+xox....
+YES
+
+81. From Jeric and friends.
+o......
+o......
+.......
+o......
+.......
+o......
+.o.o.oE
+YES
+
+82. From Jeric and friends.
+..x....
+..x....
+.......
+.ox....
+o.Oo...
+..x....
+.ox....
+YES
+
+83. From Jeric and friends.
+.......
+o......
+o......
+.xxxxxx
+.oo....
+E......
+.......
+YES
+
+84. From Jeric and friends.
+.......
+..o.o..
+.oxxxo.
+..xEx..
+.oxxxo.
+.oo.o..
+.......
+NO
+
+85. From Jeric and friends.
+.......
+.......
+E....oo
+.......
+.......
+.......
+.......
+NO
+
+86. From Jeric and friends.
+..x....
+..x....
+.......
+xox....
+o.ooEo.
+x.x....
+xox....
+NO
+
+87. From Jeric and friends.
+o......
+oxE....
+.......
+.......
+o......
+o......
+.......
+NO
+
+88. From Jeric and friends.
+.......
+.....oo
+E......
+.......
+.......
+.......
+.......
+NO
+
+89. From Jeric and friends.
+.......
+.......
+.......
+.......
+.......
+.......
+.....oO
+NO
+
+90. From Jeric and friends.
+.......
+.......
+..ooo..
+..oEo..
+..ooo..
+.......
+.......
+NO
+
+91. From Jeric and friends.
+.......
+....ooE
+......o
+......o
+.......
+.......
+.......
+NO
+
+92. From Jeric and friends.
+.......
+....o..
+..oo...
+.......
+....O..
+.......
+....xoo
+NO
+
+93. From Jeric and friends.
+.......
+.xxxxx.
+.xOoEx.
+.xoxox.
+.x.o.x.
+.xxxxx.
+.......
+NO
+
+94. From Jeric and friends.
+.......
+.....oE
+.......
+.......
+.......
+.......
+.......
+NO
+
+95. From Jeric and friends.
+.......
+.......
+.......
+.......
+.......
+.......
+...oxOo
+NO
+
+96. From Jeric and friends.
+xxxxxxx
+xxxxxxx
+xxxxxxx
+xxxExox
+xxxxxxx
+xxxxxxx
+xxxxxxx
+NO
+
+97. From Jeric and friends.
+xx...xx
+xx...xx
+......o
+oE.....
+.......
+xx...xx
+xx...xx
+NO
+
+98. From Jeric and friends.
+.......
+o......
+o......
+xxxxxxx
+.oo....
+E......
+.......
+NO
+
+99. When the impostor is sus.
+..xxx..
+.x...x.
+.ooo.x.
+O...oxx
+.ooo.xx
+.x...xx
+.x...x.
+NO
+
+100. When the impostor is sus.
+..xxx..
+.x...x.
+.x.oOo.
+xxo...o
+xx.o.o.
+xx...x.
+.x...x.
 YES
