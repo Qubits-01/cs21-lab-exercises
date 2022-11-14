@@ -921,7 +921,7 @@ NO
 93. From Jeric and friends.
 .......
 .xxxxx.
-.xOoEx.
+.xooEx.
 .xoxox.
 .x.o.x.
 .xxxxx.
@@ -929,6 +929,16 @@ NO
 NO
 
 94. From Jeric and friends.
+.......
+.xxxxx.
+.xOo.x.
+.xoxox.
+.x.o.x.
+.xxxxx.
+.......
+YES
+
+95. From Jeric and friends.
 .......
 .....oE
 .......
@@ -938,7 +948,7 @@ NO
 .......
 NO
 
-95. From Jeric and friends.
+96. From Jeric and friends.
 .......
 .......
 .......
@@ -948,7 +958,7 @@ NO
 ...oxOo
 NO
 
-96. From Jeric and friends.
+97. From Jeric and friends.
 xxxxxxx
 xxxxxxx
 xxxxxxx
@@ -958,7 +968,7 @@ xxxxxxx
 xxxxxxx
 NO
 
-97. From Jeric and friends.
+98. From Jeric and friends.
 xx...xx
 xx...xx
 ......o
@@ -968,7 +978,7 @@ xx...xx
 xx...xx
 NO
 
-98. From Jeric and friends.
+99. From Jeric and friends.
 .......
 o......
 o......
@@ -978,7 +988,7 @@ E......
 .......
 NO
 
-99. When the impostor is sus.
+100. When the impostor is sus.
 ..xxx..
 .x...x.
 .ooo.x.
@@ -988,7 +998,7 @@ O...oxx
 .x...x.
 NO
 
-100. When the impostor is sus.
+101. When the impostor is sus.
 ..xxx..
 .x...x.
 .x.oOo.
@@ -996,4 +1006,44 @@ xxo...o
 xx.o.o.
 xx...x.
 .x...x.
+YES
+
+102. From sir (case1) (slightly modified).
+xx.....
+x......
+...oo..
+...xE..
+.......
+.......
+.......
+NO
+
+103. From sir (case2) (slightly modified).
+xx...xx
+xxo..xx
+..o....
+..oO...
+.......
+xx...xx
+xx...xx
+YES
+
+104. From sir (case2) (slightly modified).
+xx...xx
+xxo..xx
+..o....
+E.oo...
+.......
+xx...xx
+xx...xx
+YES
+
+105. From sir (case3) (slightly modified).
+xx...xx
+xx.o.xx
+..o.o..
+Eo..o..
+.......
+xx...xx
+xx...xx
 YES
