@@ -7,6 +7,7 @@ test_starting_time = time.time()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', help='Shows a detailed view of the test case running.')
+parser.add_argument('-i', '--implementation', help='Define what specific implementation was used (will rename the .asm file accordingly).')
 args = parser.parse_args()
 
 
@@ -16,7 +17,12 @@ def main():
     else:
         is_verbose = False
 
-    print(Fore.BLUE + 'READING TEST CASES MASTER LIST FILE...\n')
+    implementation = 'C'
+    if args.implementation is not None:
+        implementation = args.implementation.strip().upper()
+
+    print(Fore.BLUE + 'READING TEST CASES MASTER LIST FILE...')
+    print(f'Currently testing cs21project1{implementation}.asm file.\n')
     test_cases_master_list_file = open('test_cases_master_list.txt', 'r')
     test_cases_master_list_lines = test_cases_master_list_file.readlines()
     test_cases_master_list_file.close()
@@ -50,7 +56,7 @@ def main():
             print(Fore.CYAN + f'{expected_output}\n')
 
         # Run MIPS code through Mars' CLI
-        command = 'java -jar Mars4_5.jar p sm nc cs21project1C.asm'
+        command = f'java -jar Mars4_5.jar p sm nc cs21project1{implementation}.asm'
         starting_time = time.time()
         p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (output, err) = p.communicate(temp_input.encode('utf-8').strip())
