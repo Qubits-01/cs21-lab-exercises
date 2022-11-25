@@ -1,2 +1,2 @@
 Time resolution is 1 ps
-$finish called at time : 10 ns : File "C:/Users/floss/CS21_HDL_Lab1/CS21_HDL_Lab1.srcs/sources_1/new/mux2_testbench.sv" Line 27
+$finish called at time : 80 ns : File "C:/Users/floss/CS21_HDL_Lab1/CS21_HDL_Lab1.srcs/sources_1/new/regfile_testbench_2.sv" Line 36

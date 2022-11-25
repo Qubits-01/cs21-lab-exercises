@@ -10,20 +10,11 @@ module  regfile_testbench_2();
     // Instantiate device under test.
     regfile instantiated_regfile_2(clk, we3, ra1, ra2, wa3, wd3, rd1, rd2);
     
-    initial begin
-//        clk = 0;
-//        ra1 = 'b00011;
-//        we3 = 1; #1;
-//        we3 = 0; #5;
-//        wa3 = 'b00011; we3 = 1; wd3 = 'hC0DEBABE; #2;
-//        we3 = 0; wd3 = 'hBAADBEEF; #1;
-        
+    initial
         clk = 0;
-    end
     
-    always begin
+    always
         #1 clk = ~clk;
-    end
     
     always begin
         // Write the new register values.

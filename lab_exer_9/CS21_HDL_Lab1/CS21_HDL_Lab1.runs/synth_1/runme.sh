@@ -40,4 +40,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log signext_testbench.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source signext_testbench.tcl
+EAStep vivado -log regfile.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source regfile.tcl
