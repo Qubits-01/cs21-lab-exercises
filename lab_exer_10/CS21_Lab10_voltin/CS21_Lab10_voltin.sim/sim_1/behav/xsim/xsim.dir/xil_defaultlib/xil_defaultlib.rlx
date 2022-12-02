@@ -1,0 +1,16 @@
+0.7
+2020.2
+Oct 19 2021
+03:16:22
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.sim/sim_1/behav/xsim/glbl.v,1634335545,verilog,,,,glbl,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/adder.sv,1669338514,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/sl2.sv,,adder,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/alu.sv,1669797518,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/cutout.sv,,alu,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/alu_testbench.sv,1669548551,systemVerilog,,,,alu_testbench,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/cutout.sv,1669945207,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/mux2.sv,,cutout,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/cutout_testbench.sv,1669945599,systemVerilog,,,,cutout_testbench,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/mux2.sv,1669550080,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/regfile.sv,,mux2,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/regfile.sv,1669550015,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/signext.sv,,regfile,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/signext.sv,1669792800,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/cutout_testbench.sv,,signext,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/sl2.sv,1669338547,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/voltin.sv,,sl2,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/voltin.sv,1669338761,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/voltin_testbench.sv,,voltin,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_10/CS21_Lab10_voltin/CS21_Lab10_voltin.srcs/sources_1/new/voltin_testbench.sv,1669339196,systemVerilog,,,,voltin_testbench,,uvm,,,,,,
