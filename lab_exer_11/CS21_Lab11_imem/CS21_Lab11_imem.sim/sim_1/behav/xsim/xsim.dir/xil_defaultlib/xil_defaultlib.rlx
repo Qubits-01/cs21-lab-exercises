@@ -1,0 +1,9 @@
+0.7
+2020.2
+Oct 19 2021
+03:16:22
+C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.sim/sim_1/behav/xsim/glbl.v,1634335545,verilog,,,,glbl,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/aludec.sv,1670041646,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/aludec_testbench.sv,,aludec,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/aludec_testbench.sv,1670046049,systemVerilog,,,,aludec_testbench,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/imem.sv,1669952582,systemVerilog,,C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/imem_testbench.sv,,imem,,uvm,,,,,,
+C:/arcanum/cs21-lab-exercises/lab_exer_11/CS21_Lab11_imem/CS21_Lab11_imem.srcs/sources_1/new/imem_testbench.sv,1670044099,systemVerilog,,,,imem_testbench,,uvm,,,,,,
