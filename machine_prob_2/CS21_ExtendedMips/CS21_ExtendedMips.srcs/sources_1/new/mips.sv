@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module mips(input  logic        clk, reset,
+module mips(input  logic clk, reset,
             output logic [31:0] pc,
             input  logic [31:0] instr,
             output logic        memwrite,
@@ -17,7 +17,7 @@ module mips(input  logic        clk, reset,
                alucontrol);
   datapath dp(clk, reset, memtoreg, pcsrc,
               alusrc, regdst, regwrite, jump,
-              alucontrol,
-              zero, pc, instr,
+              alucontrol, instr[10:6],
+              zero, gt, pc, instr,
               aluout, writedata, readdata);
 endmodule

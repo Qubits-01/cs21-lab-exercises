@@ -5,7 +5,8 @@ module datapath(input  logic        clk, reset,
                 input  logic        alusrc, regdst,
                 input  logic        regwrite, jump,
                 input  logic [2:0]  alucontrol,
-                output logic        zero,
+                input  logic [4:0]  shamt,
+                output logic        zero, gt,
                 output logic [31:0] pc,
                 input  logic [31:0] instr,
                 output logic [31:0] aluout, writedata,
@@ -36,5 +37,5 @@ module datapath(input  logic        clk, reset,
 
   // ALU logic
   mux2 #(32)  srcbmux(writedata, signimm, alusrc, srcb);
-  alu         alu(srca, srcb, alucontrol, aluout, zero);
+  alu         alu(srca, srcb, alucontrol, shamt, aluout, zero, gt);
 endmodule

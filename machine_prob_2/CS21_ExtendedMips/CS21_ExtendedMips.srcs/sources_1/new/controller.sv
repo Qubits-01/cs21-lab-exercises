@@ -8,7 +8,7 @@ module controller(input  logic [5:0] op, funct,
                   output logic       jump,
                   output logic [2:0] alucontrol);
 
-  logic [1:0] aluop;
+  logic [2:0] aluop;
   logic       branch;
 
   maindec md(op, memtoreg, memwrite, branch,

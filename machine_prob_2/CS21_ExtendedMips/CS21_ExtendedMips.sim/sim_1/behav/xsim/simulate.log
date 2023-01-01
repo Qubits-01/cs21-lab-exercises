@@ -1,0 +1,6 @@
+Time resolution is 1 ps
+[PASSED] Should be dataadr = 0, writedata = 0 | mem[0] = 0
+[PASSED] Should be dataadr = 4, writedata = 1 | mem[4] = 1
+[PASSED] Should be dataadr = 8, writedata = 0 | mem[8] = 0
+[PASSED] Should be dataadr = 12, writedata = 1 | mem[8] = 1
+$finish called at time : 145 ns : File "C:/arcanum/cs21-lab-exercises/machine_prob_2/CS21_ExtendedMips/CS21_ExtendedMips.srcs/sources_1/new/slti_testbench.sv" Line 37
