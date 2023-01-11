@@ -7,11 +7,10 @@ module aludec(input  logic [5:0] funct,
   always_comb
     case(aluop)
       3'b000: alucontrol <= 3'b010;  // add (for lw/sw/addi)
-      3'b001: alucontrol <= 3'b110;  // sub (for beq)
+      3'b001: alucontrol <= 3'b110;  // sub (for beq/bgt)
       3'b011: alucontrol <= 3'b001;  // or (for ori)
       3'b100: alucontrol <= 3'b111;  // slt (for slti)
-      3'b001: alucontrol <= 3'b110;  // bgt (custom)
-      3'b101: alucontrol <= 3'b011;  // li (custom)
+      3'b101: alucontrol <= 3'b011;  // li
       3'b111: alucontrol <= 3'bxxx;  // n/a
       default: case(funct)  // R-type instructions (aluop = 010)
           6'b100000: alucontrol <= 3'b010; // add

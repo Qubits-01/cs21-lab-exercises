@@ -29,5 +29,5 @@ module alu(input  logic [31:0] a, b,
   end
 
   assign zero = (result == 32'b0);
-  assign gt = (result > 32'b0);
+  assign gt = (a > b);
 endmodule

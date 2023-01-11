@@ -27,13 +27,13 @@ module sra_testbench();
     begin
       if(memwrite) begin
         if(dataadr === 0 & writedata === 533) begin
-          $display("[PASSED] Should be dataadr = 0, writedata = 0 | mem[0] = 533");
+          $display("[PASSED] Should be dataadr = 0, writedata = 533 | mem[0] = 533");
         end else if(dataadr === 4 & writedata === -1) begin
-          $display("[PASSED] Should be dataadr = 4, writedata = 1 | mem[4] = -1");
+          $display("[PASSED] Should be dataadr = 4, writedata = -1 | mem[4] = -1");
         end else if(dataadr === 8 & writedata === 42) begin
-          $display("[PASSED] Should be dataadr = 8, writedata = 0 | mem[8] = 42");
+          $display("[PASSED] Should be dataadr = 8, writedata = 42 | mem[8] = 42");
         end else if(dataadr === 12 & writedata === -1) begin
-          $display("[PASSED] Should be dataadr = 12, writedata = 1 | mem[8] = -1");
+          $display("[PASSED] Should be dataadr = 12, writedata = -1 | mem[8] = -1");
           $finish;
         end else begin
           $display("Simulation failed!!!");
