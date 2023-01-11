@@ -33,7 +33,7 @@ module sra_testbench();
         end else if(dataadr === 8 & writedata === 42) begin
           $display("[PASSED] Should be dataadr = 8, writedata = 42 | mem[8] = 42");
         end else if(dataadr === 12 & writedata === -1) begin
-          $display("[PASSED] Should be dataadr = 12, writedata = -1 | mem[8] = -1");
+          $display("[PASSED] Should be dataadr = 12, writedata = -1 | mem[12] = -1");
           $finish;
         end else begin
           $display("Simulation failed!!!");

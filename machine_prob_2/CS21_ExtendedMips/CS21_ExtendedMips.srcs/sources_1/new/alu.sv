@@ -24,7 +24,7 @@ module alu(input  logic [31:0] a, b,
         result = temp;
       end
       3'b101: result = sum;                                 // riffle 
-      3'b011: result = sum;                                 // li
+      3'b011: result = b;                                   // li
     endcase
   end
 

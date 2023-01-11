@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module slti_testbench();
+module li_testbench();
   logic        clk;
   logic        reset;
 
@@ -26,14 +26,14 @@ module slti_testbench();
   always @(negedge clk)
     begin
       if(memwrite) begin
-        if(dataadr === 0 & writedata === 0) begin
-          $display("[PASSED] Should be dataadr = 0, writedata = 0 | mem[0] = 0");
-        end else if(dataadr === 4 & writedata === 1) begin
-          $display("[PASSED] Should be dataadr = 4, writedata = 1 | mem[4] = 1");
+        if(dataadr === 0 & writedata === 999) begin
+          $display("[PASSED] Should be dataadr = 0, writedata = 999 | mem[0] = 999");
+        end else if(dataadr === 4 & writedata === -6942) begin
+          $display("[PASSED] Should be dataadr = 4, writedata = -6942 | mem[4] = -6942");
         end else if(dataadr === 8 & writedata === 0) begin
           $display("[PASSED] Should be dataadr = 8, writedata = 0 | mem[8] = 0");
-        end else if(dataadr === 12 & writedata === 1) begin
-          $display("[PASSED] Should be dataadr = 12, writedata = 1 | mem[12] = 1");
+        end else if(dataadr === 12 & writedata === -4) begin
+          $display("[PASSED] Should be dataadr = 12, writedata = -4 | mem[12] = -4");
           $finish;
         end else begin
           $display("Simulation failed!!!");
